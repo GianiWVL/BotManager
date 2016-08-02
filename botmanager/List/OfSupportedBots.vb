@@ -57,7 +57,7 @@ Namespace List
 
                _instances.Add("Necro", New SupportedBotInformation() With {
                                   .Name = "Necro", 
-                                  .DownloadUrl = "https://github.com/NECROBOTIO/NecroBot/releases/download/v0.6.1/Release.0.6.1.zip",
+                                  .DownloadUrl = "https://github.com/NECROBOTIO/NecroBot/releases/download/v0.6.2/Release.zip",
                                   .WorkingDirectory = "Necro/Release",
                                   .ZipName = "Necro.zip",
                                   .UnZipDirectory = "Necro",
