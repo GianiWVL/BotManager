@@ -27,6 +27,8 @@ Namespace UserInterface
                         AddToGridView(OfSupportedBots.GetInstance()("Spegeli"))
                     Case "BotManager.Manager.Necro"
                         AddToGridView(OfSupportedBots.GetInstance()("Necro"))
+                    Case "BotManager.Manager.PokeMobBot"
+                        AddToGridView(OfSupportedBots.GetInstance()("PokeMobBot"))
                 End Select
             End If
         End Sub

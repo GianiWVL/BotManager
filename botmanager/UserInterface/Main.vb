@@ -73,6 +73,8 @@ Namespace UserInterface
                 botInformation.BotClass = "BotManager.Manager.Spegeli"
             ElseIf botSelectBox.Text = "Necro" Then
                 botInformation.BotClass = "BotManager.Manager.Necro"
+            ElseIf botSelectBox.Text = "PokeMobBot" Then
+                botInformation.BotClass = "BotManager.Manager.PokeMobBot"
             Else
                 botInformation = Nothing
                 MsgBox("Select bot type")

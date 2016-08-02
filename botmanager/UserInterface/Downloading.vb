@@ -153,7 +153,9 @@ Namespace UserInterface
                     Case "Haxton"
                         HaxtonReadSettings(supportedBotInformation)
                     Case "Necro"
-                        NecroReadSettings(supportedBotInformation)
+                        NecroMoboReadSettings(supportedBotInformation)
+                    Case "PokeMobBot"
+                        NecroMoboReadSettings(supportedBotInformation)
                 End Select
             Else
                 Msgbox("Bot Manager failed to compile bot: " & supportedBotInformation.Name)
@@ -162,7 +164,7 @@ Namespace UserInterface
             End If
         End Sub
 
-        Private Sub NecroReadSettings(ByRef supportedBotInformation As SupportedBotInformation)
+        Private Sub NecroMoboReadSettings(ByRef supportedBotInformation As SupportedBotInformation)
             Dim settings As String =
                     New StreamReader(
                         Path.GetDirectoryName(supportedBotInformation.ExecutablePath) & "\Config\config.json").ReadToEnd()
@@ -260,9 +262,9 @@ Namespace UserInterface
             End Try
             If githubVersion = "" = False Then
                 If Application.ProductVersion = githubVersion = False Then
+                    MsgBox("Program has been updated! Restarting")
                     My.Computer.FileSystem.RenameFile("BotManager.exe", "BotManager.exe.old")
                     Http.DownloadRepository("https://github.com/chancity/BotManager/raw/master/download/BotManager.exe", "BotManager.exe")
-                    MsgBox("Program has been updated! Restarting")
                     Process.Start("BotManager.exe")
                     End
                 End If

@@ -44,28 +44,28 @@ Namespace List
                                   "Haxton/HaxtonBot-master/PokemonGo.Haxton.Console/bin/Debug/PokemonGo.Haxton.Console.exe",
                                   .BotClass = "BotManager.Manager.Haxton"})
 
-                _instances.Add("Necro", New SupportedBotInformation() With {
+                _instances.Add("PokeMobBot", New SupportedBotInformation() With {
+                                  .Name = "PokeMobBot", 
+                                  .DownloadUrl = "https://github.com/PocketMobsters/PokeMobBot/releases/download/v1.1.3/Release.zip",
+                                  .WorkingDirectory = "PokeMobBot/Release",
+                                  .ZipName = "PokeMobBot.zip",
+                                  .UnZipDirectory = "PokeMobBot",
+                                  .ExecutablePath = "PokeMobBot/Release/PokeMobBot.exe",
+                                  .BotClass = "BotManager.Manager.PokeMobBot",
+                                  .Compile = False,
+                                  .DownloadPackages = False})
+
+               _instances.Add("Necro", New SupportedBotInformation() With {
                                   .Name = "Necro", 
-                                  .DownloadUrl = "https://github.com/NecronomiconCoding/NecroBot/archive/master.zip",
-                                  .WorkingDirectory = "Necro/NecroBot-master",
+                                  .DownloadUrl = "https://github.com/NECROBOTIO/NecroBot/releases/download/v0.6.1/Release.0.6.1.zip",
+                                  .WorkingDirectory = "Necro/Release",
                                   .ZipName = "Necro.zip",
                                   .UnZipDirectory = "Necro",
-                                  .ExecutablePath = "Necro/NecroBot-master/PoGo.NecroBot.CLI/bin/Debug/NecroBot.exe",
-                                  .BotClass = "BotManager.Manager.Necro"})
-
-                _instances.Add("NecroAPI", New SupportedBotInformation() With {
-                                  .Name = "NecroAPI", 
-                                  .DownloadUrl =
-                                  "https://github.com/NecronomiconCoding/NecroBot-Rocket-API/archive/master.zip",
-                                  .WorkingDirectory = "NecroAPI/NecroBot-Rocket-API-master",
-                                  .MoveTo = "Necro/NecroBot-master/FeroxRev",
-                                  .ZipName = "NecroAPI.zip",
-                                  .UnZipDirectory = "NecroAPI",
-                                  .DisplayAsBot = False,
-                                  .DownloadPackages = False,
-                                  .ReadSettings = False,
+                                  .ExecutablePath = "Necro/Release/NecroBot.exe",
+                                  .BotClass = "BotManager.Manager.Necro",
                                   .Compile = False,
-                                  .MoveFolder = True})
+                                  .DownloadPackages = False})
+
                 Return _instances
             Else
                 Return _instances
