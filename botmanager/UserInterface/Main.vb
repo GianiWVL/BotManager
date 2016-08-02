@@ -102,6 +102,8 @@ Namespace UserInterface
             If dialog.ShowDialog() = DialogResult.OK Then
                 Dim title As String = bot.BotInformation.GetSettingValue("PtcUsername")
                 If title.ToLower().Contains("username") Then title = bot.BotInformation.GetSettingValue("GoogleEmail")
+                If title = "" Then title = bot.BotInformation.GetSettingValue("GoogleUsername")
+
                 botTree.SelectedNode.Text = title
 
                 bot.Kill(False)
