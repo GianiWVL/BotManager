@@ -23,7 +23,7 @@ Namespace UserInterface
                 objWriter.Write(e.Error.StackTrace)
                 objWriter.Dispose()
                 Process.Start("error.log")
-                'Me.Close()
+                Me.Close()
             End If
         End Sub
         Private Sub BackgroundWorker1_DoWork(sender As Object, e As DoWorkEventArgs) _
@@ -248,7 +248,7 @@ Namespace UserInterface
                 End
             End If
             If Not Installed Then
-                BackgroundWorker1.RunWorkerAsync()
+                BackgroundWorker1.RunWorkerAsync(True)
                 Me.Size = New Size("296", "92")
             Else
                 btnYes.Visible = True
