@@ -1,5 +1,6 @@
 ﻿Imports System.ComponentModel
 Imports System.Management
+Imports System.Reflection
 Imports System.Text
 Imports BotManager.List
 Imports BotManager.Manager
@@ -23,8 +24,19 @@ Namespace UserInterface
             Catch ex As Exception
                 MsgBox("Error at load " & ex.Message)
             End Try
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, True)
         End Sub
+        Public Shared Sub SetDoubleBuffered(c As System.Windows.Forms.Control)
+            'http://blogs.msdn.com/oldnewthing/archive/2006/01/03/508694.aspx
+            If SystemInformation.TerminalServerSession Then
+                Return
+            End If
 
+            Dim aProp As PropertyInfo = GetType(Control).GetProperty("DoubleBuffered",
+                                                                     BindingFlags.NonPublic Or BindingFlags.Instance)
+
+            aProp.SetValue(c, True, Nothing)
+        End Sub
         Private Sub Main_Resize(sender As Object, e As EventArgs) Handles MyBase.ResizeEnd
             ResizeCmd()
         End Sub
@@ -44,10 +56,10 @@ Namespace UserInterface
 
         Private Sub Main_Closed(sender As Object, e As EventArgs) Handles MyBase.Closed
             Dim t As Task = Task.Run(Sub()
-                                         For Each bot As Generic In _bots
-                                             bot.Dispose()
-                                         Next
-                                     End Sub)
+                For Each bot As Generic In _bots
+                    bot.Dispose()
+                Next
+                                        End Sub)
             t.Wait()
             My.Settings.Save()
         End Sub
@@ -73,6 +85,8 @@ Namespace UserInterface
                 botInformation.BotClass = "BotManager.Manager.Spegeli"
             ElseIf botSelectBox.Text = "Necro" Then
                 botInformation.BotClass = "BotManager.Manager.Necro"
+            ElseIf botSelectBox.Text = "PokeMobBot" Then
+                botInformation.BotClass = "BotManager.Manager.PokeMobBot"
             Else
                 botInformation = Nothing
                 MsgBox("Select bot type")
@@ -100,6 +114,8 @@ Namespace UserInterface
             If dialog.ShowDialog() = DialogResult.OK Then
                 Dim title As String = bot.BotInformation.GetSettingValue("PtcUsername")
                 If title.ToLower().Contains("username") Then title = bot.BotInformation.GetSettingValue("GoogleEmail")
+                If title = "" Then title = bot.BotInformation.GetSettingValue("GoogleUsername")
+
                 botTree.SelectedNode.Text = title
 
                 bot.Kill(False)
@@ -145,7 +161,7 @@ Namespace UserInterface
             Handles repLabel.LinkClicked
             repLabel.LinkVisited = True
             Process.Start(
-                "http://www.ownedcore.com/forums/pokemon-go/pokemon-go-hacks-cheats/566095-bot-manager-auto-update-includes-multiple-bots-multi-account.html")
+                "http://www.ownedcore.com/forums/pokemon-go/pokemon-go-hacks-cheats/568064-bot-manager-spegeli-necro-haxton-all-one-multi-account-1000-a.html")
         End Sub
 
         Private Sub paypalLabel_LinkClicked_1(sender As Object, e As LinkLabelLinkClickedEventArgs) _
@@ -162,7 +178,7 @@ Namespace UserInterface
             Dim total As Double = 0
             For Each treeNode As TreeNode In botTree.Nodes
                 Dim bot = DirectCast(treeNode.Tag, Generic)
-                Dim contained As Boolean = False
+                Dim contained = False
                 Dim caption As New StringBuilder(256)
                 If bot.IsRunning Then
                     For Each intr In Api.GetChildWindows(_botPanel.Handle)
@@ -205,7 +221,7 @@ Namespace UserInterface
             Next
 
             statusLabel.Text = String.Format("Total Bots: {0}, Average EXP: {1}, Total EXP: {2}", botTree.Nodes.Count,
-                                             total / botTree.Nodes.Count, total)
+                                             total/botTree.Nodes.Count, total)
         End Sub
 
         Private Sub botTree_AfterSelect(sender As Object, e As TreeViewEventArgs) Handles botTree.AfterSelect
@@ -262,16 +278,16 @@ Namespace UserInterface
 
         Private Sub KillAllBots()
             Dim t As Task = Task.Run(Sub()
-                                         For Each bot As Generic In _bots
-                                             If bot.IsRunning Then bot.Kill(False)
-                                         Next
-                                     End Sub)
+                For Each bot As Generic In _bots
+                    If bot.IsRunning Then bot.Kill(False)
+                Next
+                                        End Sub)
 
             t.Wait()
         End Sub
 
         Private Function ContainsProcess(commandLine As String)
-            Return _bots.Cast(Of Generic)().Any(Function(bot) commandLine.Contains(bot.ProcessId.ToString()))
+            Return _bots.Cast (Of Generic)().Any(Function(bot) commandLine.Contains(bot.ProcessId.ToString()))
         End Function
 
         Private Sub botsStarter_DoWork(sender As Object, e As DoWorkEventArgs) Handles batchStarter.DoWork

@@ -123,6 +123,7 @@
     <Compile Include="Helpers\Http.vb" />
     <Compile Include="Helpers\IO.vb" />
     <Compile Include="Helpers\Json.vb" />
+    <Compile Include="Manager\PokeMobBot.vb" />
     <Compile Include="Properties\BotInformation.vb" />
     <Compile Include="Properties\NecroSettings.vb" />
     <Compile Include="Properties\SupportedBotInformation.vb" />

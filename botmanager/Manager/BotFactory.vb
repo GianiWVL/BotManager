@@ -10,6 +10,8 @@ Namespace Manager
                     Return New Spegeli(botProperties)
                 Case "BotManager.Manager.Necro"
                     Return New Necro(botProperties)
+                Case "BotManager.Manager.PokeMobBot"
+                    Return New PokeMobBot(botProperties)
             End Select
 
             Throw New Exception("Uknown Bot Class!")

@@ -3,12 +3,12 @@ Imports BotManager.Properties
 Imports Newtonsoft.Json.Linq
 
 Namespace Manager
-    Public Class Necro
+    Public Class PokeMobBot
         Inherits Generic
 
         Public Sub New(ByRef botInformation As BotInformation)
             MyBase.New(botInformation)
-            ExecutablePath = OfSupportedBots.GetInstance()("Necro").ExecutablePath
+            ExecutablePath = OfSupportedBots.GetInstance()("PokeMobBot").ExecutablePath
             Initialize()
         End Sub
 
