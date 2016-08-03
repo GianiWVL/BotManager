@@ -20,10 +20,9 @@ Namespace UserInterface
 
             If Not e.Error Is Nothing Then 
                 Dim objWriter As New System.IO.StreamWriter("error.log")
-                objWriter.Write(e.Error.StackTrace)
+                objWriter.Write(e.Error.Message & vbCrLf & e.Error.StackTrace)
                 objWriter.Dispose()
                 Process.Start("error.log")
-                Me.Close()
             End If
         End Sub
         Private Sub BackgroundWorker1_DoWork(sender As Object, e As DoWorkEventArgs) _
@@ -142,15 +141,16 @@ Namespace UserInterface
             If Not File.Exists(supportedBotInformation.ExecutablePath) Then
                 Throw New Exception("Failed to run once: " & supportedBotInformation.Name)
             End If
-                BackgroundWorker1.ReportProgress(_compIncrement, "Running " & supportedBotInformation.Name & " once")
-                Dim pInfo As New ProcessStartInfo
-                pInfo.WorkingDirectory = Path.GetDirectoryName(supportedBotInformation.ExecutablePath)
-                pInfo.FileName = Path.GetFileName(supportedBotInformation.ExecutablePath)
-                pInfo.WindowStyle = ProcessWindowStyle.Minimized
-                Dim p As Process = CmdLine.Run(pInfo, False)
 
-                Thread.Sleep(3000)
-                If Not p Is Nothing AndAlso Not p.HasExited Then p.Kill()
+            BackgroundWorker1.ReportProgress(_compIncrement, "Running " & supportedBotInformation.Name & " once")
+            Dim pInfo As New ProcessStartInfo
+            pInfo.WorkingDirectory = Path.GetDirectoryName(supportedBotInformation.ExecutablePath)
+            pInfo.FileName = Path.GetFileName(supportedBotInformation.ExecutablePath)
+            pInfo.WindowStyle = ProcessWindowStyle.Minimized
+            Dim p As Process = CmdLine.Run(pInfo, False)
+
+            Thread.Sleep(3000)
+            If Not p Is Nothing AndAlso Not p.HasExited Then p.Kill()
         End Sub
 
         Private Sub AddSettings(ByRef supportedBotInformation As SupportedBotInformation)
