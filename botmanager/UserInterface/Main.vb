@@ -13,7 +13,6 @@ Namespace UserInterface
             _processSearcher As New ManagementObjectSearcher("SELECT * FROM Win32_Process WHERE Name='WerFault.exe'")
 
         Private ReadOnly _bots As New ArrayList
-        Dim batchRemove As Boolean = False
 
         Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Try
@@ -66,8 +65,9 @@ Namespace UserInterface
 
         Private Sub CreateTreeNode(ByRef botInformation As BotInformation)
             Dim newTreeNode As New TreeNode
-            Dim title As String = botInformation.GetSettingValue("PtcUsername")
-            If title.ToLower().Contains("username") Then title = botInformation.GetSettingValue("GoogleEmail")
+            Dim title As String = BotInformation.GetSettingValue("PtcUsername")
+            If title.ToLower().Contains("username") Then title = BotInformation.GetSettingValue("GoogleEmail")
+            If title = "" Then title = BotInformation.GetSettingValue("GoogleUsername")
             newTreeNode.Name = title
             newTreeNode.Text = title
             Dim bot As Generic = BotFactory.GetBot(botInformation)
@@ -100,10 +100,11 @@ Namespace UserInterface
                     My.Settings.ListOfPropertiesBots.Items.Add(returnedBotInformation)
                     CreateTreeNode(returnedBotInformation)
                 Next
-                batchStarter.RunWorkerAsync()
+
+                StartAllBots()
             End If
 
-            dialog = Nothing
+            dialog.Dispose()
         End Sub
 
         Private Sub btnEdit_Click(sender As Object, e As EventArgs) Handles btnEdit.Click
@@ -149,12 +150,12 @@ Namespace UserInterface
         End Sub
 
         Private Sub btnRestartAll_Click(sender As Object, e As EventArgs) Handles btnRestartAll.Click
-            batchKiller.RunWorkerAsync()
-            batchStarter.RunWorkerAsync()
+            KillAllBots()
+            StartAllBots()
         End Sub
 
         Private Sub btnStopAll_Click(sender As Object, e As EventArgs) Handles btnStopAll.Click
-            batchKiller.RunWorkerAsync()
+             KillAllBots()
         End Sub
 
         Private Sub repLabel_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) _
@@ -267,18 +268,17 @@ Namespace UserInterface
         End Sub
 
         Private Sub StartAllBots()
-            For Each bot As Generic In _bots
-                If Not bot.IsRunning Then bot.Start()
-                If Not bot.IsRunning Then
-                    Application.DoEvents()
-                End If
-            Next
+           Dim t As Task = Task.Run(Sub()
+                    For Each bot As Generic In _bots
+                        If Not bot.IsRunning Then bot.Start()
+                    Next
+           End Sub)
         End Sub
 
-        Private Sub KillAllBots()
+        Private Sub KillAllBots(Optional delete As Boolean = False)
             Dim t As Task = Task.Run(Sub()
                 For Each bot As Generic In _bots
-                    If bot.IsRunning Then bot.Kill(False)
+                    If bot.IsRunning Then bot.Kill(delete)
                 Next
                                         End Sub)
 
@@ -288,22 +288,13 @@ Namespace UserInterface
         Private Function ContainsProcess(commandLine As String)
             Return _bots.Cast (Of Generic)().Any(Function(bot) commandLine.Contains(bot.ProcessId.ToString()))
         End Function
-
-        Private Sub botsStarter_DoWork(sender As Object, e As DoWorkEventArgs) Handles batchStarter.DoWork
-            StartAllBots()
-        End Sub
-
-        Private Sub batchKiller_DoWork(sender As Object, e As DoWorkEventArgs) Handles batchKiller.DoWork
-            KillAllBots()
-        End Sub
-
         Private Sub btnStartAll_Click(sender As Object, e As EventArgs) Handles btnStartAll.Click
-            batchStarter.RunWorkerAsync()
+            StartAllBots()
         End Sub
 
         Private Sub btnRemoveAll_Click(sender As Object, e As EventArgs) Handles btnRemoveAll.Click
             botTree.Nodes.Clear()
-            KillAllBots()
+            KillAllBots(True)
             _bots.Clear()
             My.Settings.ListOfPropertiesBots = New OfPropertiesBots()
             My.Settings.Save()

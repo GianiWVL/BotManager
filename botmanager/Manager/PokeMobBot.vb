@@ -34,7 +34,11 @@ Namespace Manager
                     setting.Equals("PtcPassword") Then
                     jObjectAuth(setting) = botInformation.GetSettingValue(setting).ToString()
                 Else
-                    jObjectSettings(setting) = botInformation.GetSettingValue(setting).ToString()
+                    If  setting.Equals("AutoUpdate") Then
+                        jObjectSettings(setting) = "false"
+                    Else 
+                        jObjectSettings(setting) = botInformation.GetSettingValue(setting).ToString()
+                    End If
                 End If
 
             Next

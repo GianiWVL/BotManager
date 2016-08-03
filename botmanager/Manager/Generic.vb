@@ -6,33 +6,46 @@ Imports BotManager.Windows
 Namespace Manager
     Public MustInherit Class Generic
         Implements IDisposable
-        Public IsRunning As Boolean = False
         Public IsSelected As Boolean = False
         Public Shared PanelHandle As Integer
         Public Level As String = ""
+        Private _hasRan As Boolean = False
         Public ExperiencePerHour As String = ""
         Public PokeStopsPerHour As String
-        Private _processId As Integer
 
         Public ReadOnly Property ProcessId As Integer
             Get
-                Return _processId
+                If IsRunning Then
+                    Return _p.Id
+                Else 
+                    Return Nothing
+                End If
             End Get
         End Property
-
-        Private _handle As IntPtr = 0
 
         Public ReadOnly Property Handle As IntPtr
             Get
-                Return _handle
+                If IsRunning Then
+                    Return _p.MainWindowHandle
+                Else 
+                    Return Nothing
+                End If
             End Get
         End Property
-
+        Public ReadOnly Property IsRunning As Boolean
+            Get
+                If _p Is Nothing Then
+                    Return False
+                Else 
+                    Return Not _p.HasExited
+                End If
+            End Get
+        End Property
         Public BotInformation As BotInformation
 
         Protected ExecutablePath As String = ""
         Private _p As Process
-        Private ReadOnly _timer As New Timer(500)
+        Private ReadOnly _timer As New Timer(1000)
         Private _startTime As Date = Nothing
         Public MustOverride Sub WriteSettings()
 
@@ -44,7 +57,6 @@ Namespace Manager
         End Sub
 
         Protected Function Initialize() As Boolean
-            If BotInformation.TempExecutablePath <> "" Then Return False
             If File.Exists(ExecutablePath) Then
                 BotInformation.TempExecutablePath = IO.CopyFolder(
                     Path.GetDirectoryName(ExecutablePath)) & "\" &
@@ -58,7 +70,7 @@ Namespace Manager
         End Function
 
         Public Sub Start()
-            Initialize()
+            If Not _hasRan Then Initialize()
             WriteSettings()
 
             Dim pInfo As New ProcessStartInfo
@@ -71,26 +83,16 @@ Namespace Manager
             _p = p
 
 
-            Do Until _p.HasExited OrElse Api.GetChildWindows(PanelHandle).Contains(_p.MainWindowHandle)
-                PutConsoleInPanel(_p.MainWindowHandle)
+            Do Until Not IsRunning OrElse Api.GetChildWindows(PanelHandle).Contains(Handle)
+                PutConsoleInPanel(Handle)
             Loop
 
 
-            If Not _p.HasExited Then 
-                Api.SendMessage(_p.MainWindowHandle, &H100, 13, 0)
-                UpdateBotInformation()
-                _timer.Start()
-            Else 
-                Start()
+            If IsRunning Then 
+                Api.SendMessage(Handle, &H100, 13, 0)
             End If
+            _timer.Start()
         End Sub
-
-        Private Sub UpdateBotInformation()
-            _processId = _p.Id
-            _handle = _p.MainWindowHandle
-            IsRunning = True
-        End Sub
-
         Private Sub PutConsoleInPanel(pHandle As Intptr)
             Api.SetParent(pHandle, PanelHandle)
 
@@ -110,7 +112,6 @@ Namespace Manager
                     _p.Kill()
                 End If
                 _startTime = Nothing
-                IsRunning = False
             End If
 
             If delete Then
@@ -119,6 +120,8 @@ Namespace Manager
                 While Not IO.DirectoryIsEmpty(directory)
                     IO.DeleteFilesFromFolder(directory)
                 End While
+
+                _hasRan = False
             End If
         End Sub
 
@@ -142,9 +145,8 @@ Namespace Manager
 
         Public Sub Dispose() Implements IDisposable.Dispose
             If IsRunning Then Kill(True)
-            IsRunning = Nothing
+            _hasRan = Nothing
             IsSelected = Nothing
-            _handle = Nothing
             ExecutablePath = Nothing
             If Not _p Is Nothing Then _p.Dispose()
             If Not _timer Is Nothing Then _timer.Dispose()

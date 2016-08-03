@@ -52,8 +52,6 @@
         Me.showPokemon = New System.Windows.Forms.CheckBox()
         Me.showExp = New System.Windows.Forms.CheckBox()
         Me.showLvl = New System.Windows.Forms.CheckBox()
-        Me.batchStarter = New System.ComponentModel.BackgroundWorker()
-        Me.batchKiller = New System.ComponentModel.BackgroundWorker()
         CType(Me.botsContainer,System.ComponentModel.ISupportInitialize).BeginInit
         Me.botsContainer.Panel1.SuspendLayout
         Me.botsContainer.Panel2.SuspendLayout
@@ -341,12 +339,6 @@
         Me.showLvl.Text = "LVL"
         Me.showLvl.UseVisualStyleBackColor = true
         '
-        'batchStarter
-        '
-        '
-        'batchKiller
-        '
-        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6!, 13!)
@@ -406,8 +398,6 @@ End Sub
         Friend WithEvents showPokemon As System.Windows.Forms.CheckBox
         Friend WithEvents showExp As System.Windows.Forms.CheckBox
         Friend WithEvents showLvl As System.Windows.Forms.CheckBox
-        Friend WithEvents batchStarter As System.ComponentModel.BackgroundWorker
-        Friend WithEvents batchKiller As System.ComponentModel.BackgroundWorker
         Friend WithEvents btnStartAll As System.Windows.Forms.Button
         Friend WithEvents btnRemoveAll As System.Windows.Forms.Button
     End Class
