@@ -54,7 +54,7 @@ Namespace UserInterface
             Handles BackgroundWorker1.RunWorkerCompleted
             DialogResult = DialogResult.OK
             Main.Show()
-            Me.Close()
+            Me.Dispose()
         End Sub
 
         Private Sub InstallBotFirstStep(ByRef supportedBotInformation As SupportedBotInformation)

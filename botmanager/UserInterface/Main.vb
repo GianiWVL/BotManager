@@ -1,5 +1,6 @@
 ﻿Imports System.ComponentModel
 Imports System.Management
+Imports System.Reflection
 Imports System.Text
 Imports BotManager.List
 Imports BotManager.Manager
@@ -23,8 +24,19 @@ Namespace UserInterface
             Catch ex As Exception
                 MsgBox("Error at load " & ex.Message)
             End Try
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, True)
         End Sub
+        Public Shared Sub SetDoubleBuffered(c As System.Windows.Forms.Control)
+            'http://blogs.msdn.com/oldnewthing/archive/2006/01/03/508694.aspx
+            If SystemInformation.TerminalServerSession Then
+                Return
+            End If
 
+            Dim aProp As PropertyInfo = GetType(Control).GetProperty("DoubleBuffered",
+                                                                     BindingFlags.NonPublic Or BindingFlags.Instance)
+
+            aProp.SetValue(c, True, Nothing)
+        End Sub
         Private Sub Main_Resize(sender As Object, e As EventArgs) Handles MyBase.ResizeEnd
             ResizeCmd()
         End Sub
