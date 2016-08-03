@@ -70,7 +70,10 @@ Namespace Manager
         End Function
 
         Public Sub Start()
-            If Not _hasRan Then Initialize()
+            If Not _hasRan Then 
+                Initialize()
+                _hasRan = True
+            End If
             WriteSettings()
 
             Dim pInfo As New ProcessStartInfo
