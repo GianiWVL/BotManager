@@ -16,10 +16,11 @@ Namespace UserInterface
         Private _compIncrement As Integer = 0
         Private _currentComp As Integer = 0
 
-        Public Sub exitWithError(ByVal errorMsg, ByVal stackTrace)
+        Public Sub ExitWithError(ByVal errorMsg, ByVal stackTrace)
             MsgBox(errorMsg)
             Dim objWriter As New System.IO.StreamWriter("log.txt")
-            objWriter.Write(stackTrace)
+            objWriter.WriteAsync(stackTrace)
+            objWriter.Dispose()
             Me.Close()
         End Sub
 

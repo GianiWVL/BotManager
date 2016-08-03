@@ -1,11 +1,11 @@
 ﻿Imports System.ComponentModel
 Imports System.Management
+Imports System.Reflection
 Imports System.Text
 Imports BotManager.List
 Imports BotManager.Manager
 Imports BotManager.Properties
 Imports BotManager.Windows
-Imports BotManager.Helpers
 
 Namespace UserInterface
     Public Class Main
@@ -25,6 +25,19 @@ Namespace UserInterface
             Catch ex As Exception
                 MsgBox("Error at load " & ex.Message)
             End Try
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, True)
+        End Sub
+
+        Public Shared Sub SetDoubleBuffered(c As Control)
+            'http://blogs.msdn.com/oldnewthing/archive/2006/01/03/508694.aspx
+            If SystemInformation.TerminalServerSession Then
+                Return
+            End If
+
+            Dim aProp As PropertyInfo = GetType(Control).GetProperty("DoubleBuffered",
+                                                                     BindingFlags.NonPublic Or BindingFlags.Instance)
+
+            aProp.SetValue(c, True, Nothing)
         End Sub
 
         Private Sub Main_Resize(sender As Object, e As EventArgs) Handles MyBase.ResizeEnd
@@ -44,15 +57,12 @@ Namespace UserInterface
 
         Private Sub Main_Closed(sender As Object, e As EventArgs) Handles MyBase.Closed
             Dim t As Task = Task.Run(Sub()
-                                         For Each bot As Generic In _bots
-                                             bot.Dispose()
-                                         Next
-                                     End Sub)
+                For Each bot As Generic In _bots
+                    bot.Dispose()
+                Next
+                                        End Sub)
             t.Wait()
             My.Settings.Save()
-            If batchRemove Then
-                Process.Start(Application.StartupPath & "\Bot Manager Delete Data.exe")
-            End If
         End Sub
 
         Private Sub CreateTreeNode(ByRef botInformation As BotInformation)
@@ -213,7 +223,7 @@ Namespace UserInterface
             Next
 
             statusLabel.Text = String.Format("Total Bots: {0}, Average EXP: {1}, Total EXP: {2}", botTree.Nodes.Count,
-                                             total / botTree.Nodes.Count, total)
+                                             total/botTree.Nodes.Count, total)
         End Sub
 
         Private Sub botTree_AfterSelect(sender As Object, e As TreeViewEventArgs) Handles botTree.AfterSelect
@@ -267,16 +277,16 @@ Namespace UserInterface
 
         Private Sub KillAllBots()
             Dim t As Task = Task.Run(Sub()
-                                         For Each bot As Generic In _bots
-                                             If bot.IsRunning Then bot.Kill(False)
-                                         Next
-                                     End Sub)
+                For Each bot As Generic In _bots
+                    If bot.IsRunning Then bot.Kill(False)
+                Next
+                                        End Sub)
 
             t.Wait()
         End Sub
 
         Private Function ContainsProcess(commandLine As String)
-            Return _bots.Cast(Of Generic)().Any(Function(bot) commandLine.Contains(bot.ProcessId.ToString()))
+            Return _bots.Cast (Of Generic)().Any(Function(bot) commandLine.Contains(bot.ProcessId.ToString()))
         End Function
 
         Private Sub botsStarter_DoWork(sender As Object, e As DoWorkEventArgs) Handles batchStarter.DoWork
@@ -292,8 +302,11 @@ Namespace UserInterface
         End Sub
 
         Private Sub btnRemoveAll_Click(sender As Object, e As EventArgs) Handles btnRemoveAll.Click
-            batchRemove = True
-            Me.Close()
+            botTree.Nodes.Clear()
+            KillAllBots()
+            _bots.Clear()
+            My.Settings.ListOfPropertiesBots = New OfPropertiesBots()
+            My.Settings.Save()
         End Sub
     End Class
 End Namespace
