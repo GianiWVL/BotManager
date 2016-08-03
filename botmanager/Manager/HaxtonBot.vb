@@ -8,7 +8,7 @@ Namespace Manager
 
         Public Sub New(ByRef botInformation As BotInformation)
             MyBase.New(botInformation)
-            ExecutablePath = OfSupportedBots.GetInstance()("Haxton").ExecutablePath
+            ExecutablePath = OfSupportedBots.GetInstance()("HaxtonBot").ExecutablePath
         End Sub
 
         Public Overrides Sub WriteSettings()
