@@ -54,7 +54,7 @@ Namespace UserInterface
             Handles BackgroundWorker1.RunWorkerCompleted
             DialogResult = DialogResult.OK
             Main.Show()
-            Me.Dispose()
+            Me.Close()
         End Sub
 
         Private Sub InstallBotFirstStep(ByRef supportedBotInformation As SupportedBotInformation)
@@ -65,7 +65,12 @@ Namespace UserInterface
 
         Private Sub InstallBotSecondStep(ByRef supportedBotInformation As SupportedBotInformation)
             DownloadBotPackages(supportedBotInformation)
-            CompileBot(supportedBotInformation)
+            Try
+                CompileBot(supportedBotInformation)
+            Catch ex As Exception
+                MsgBox(ex.Message)
+                MsgBox(ex.StackTrace)
+            End Try
             RunAndKill(supportedBotInformation)
         End Sub
 
@@ -230,8 +235,8 @@ Namespace UserInterface
         End Sub
 
         Private Sub Downloading_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-            If File.Exists("BotManager.exe.old") Then File.Delete("BotManager.exe.old")
-            CheckForUpdates()
+            ' If File.Exists("BotManager.exe.old") Then File.Delete("BotManager.exe.old")
+            'CheckForUpdates()
             If Not File.Exists(MsBuild) Then
                 MsgBox("Install MSBuild")
                 End

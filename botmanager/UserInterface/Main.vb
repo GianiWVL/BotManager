@@ -1,11 +1,11 @@
 ﻿Imports System.ComponentModel
 Imports System.Management
-Imports System.Reflection
 Imports System.Text
 Imports BotManager.List
 Imports BotManager.Manager
 Imports BotManager.Properties
 Imports BotManager.Windows
+Imports BotManager.Helpers
 
 Namespace UserInterface
     Public Class Main
@@ -13,6 +13,7 @@ Namespace UserInterface
             _processSearcher As New ManagementObjectSearcher("SELECT * FROM Win32_Process WHERE Name='WerFault.exe'")
 
         Private ReadOnly _bots As New ArrayList
+        Dim batchRemove As Boolean = False
 
         Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Try
@@ -24,19 +25,8 @@ Namespace UserInterface
             Catch ex As Exception
                 MsgBox("Error at load " & ex.Message)
             End Try
-            SetStyle(ControlStyles.OptimizedDoubleBuffer, True)
         End Sub
-        Public Shared Sub SetDoubleBuffered(c As System.Windows.Forms.Control)
-            'http://blogs.msdn.com/oldnewthing/archive/2006/01/03/508694.aspx
-            If SystemInformation.TerminalServerSession Then
-                Return
-            End If
 
-            Dim aProp As PropertyInfo = GetType(Control).GetProperty("DoubleBuffered",
-                                                                     BindingFlags.NonPublic Or BindingFlags.Instance)
-
-            aProp.SetValue(c, True, Nothing)
-        End Sub
         Private Sub Main_Resize(sender As Object, e As EventArgs) Handles MyBase.ResizeEnd
             ResizeCmd()
         End Sub
@@ -49,19 +39,20 @@ Namespace UserInterface
                 For Each botInformation As BotInformation In My.Settings.ListOfPropertiesBots.Items
                     CreateTreeNode(botInformation)
                 Next
-                'StartAllBots()
-                'batchStarter.RunWorkerAsync()
             End If
         End Sub
 
         Private Sub Main_Closed(sender As Object, e As EventArgs) Handles MyBase.Closed
             Dim t As Task = Task.Run(Sub()
-                For Each bot As Generic In _bots
-                    bot.Dispose()
-                Next
-                                        End Sub)
+                                         For Each bot As Generic In _bots
+                                             bot.Dispose()
+                                         Next
+                                     End Sub)
             t.Wait()
             My.Settings.Save()
+            If batchRemove Then
+                Process.Start(Application.StartupPath & "\Bot Manager Delete Data.exe")
+            End If
         End Sub
 
         Private Sub CreateTreeNode(ByRef botInformation As BotInformation)
@@ -92,7 +83,7 @@ Namespace UserInterface
                 MsgBox("Select bot type")
                 Exit Sub
             End If
-            Dim dialog As New SettingsEditor(BotInformation)
+            Dim dialog As New SettingsEditor(botInformation)
 
 
             If dialog.ShowDialog() = DialogResult.OK Then
@@ -167,6 +158,7 @@ Namespace UserInterface
         Private Sub paypalLabel_LinkClicked_1(sender As Object, e As LinkLabelLinkClickedEventArgs) _
             Handles paypalLabel.LinkClicked
             repLabel.LinkVisited = True
+
             Process.Start(
                 "https://www.paypal.me/chancity")
         End Sub
@@ -221,7 +213,7 @@ Namespace UserInterface
             Next
 
             statusLabel.Text = String.Format("Total Bots: {0}, Average EXP: {1}, Total EXP: {2}", botTree.Nodes.Count,
-                                             total/botTree.Nodes.Count, total)
+                                             total / botTree.Nodes.Count, total)
         End Sub
 
         Private Sub botTree_AfterSelect(sender As Object, e As TreeViewEventArgs) Handles botTree.AfterSelect
@@ -265,29 +257,26 @@ Namespace UserInterface
         End Sub
 
         Private Sub StartAllBots()
-            'lets do one at a time
-            ' Dim t As Task = Task.Run(Sub()
             For Each bot As Generic In _bots
                 If Not bot.IsRunning Then bot.Start()
                 If Not bot.IsRunning Then
                     Application.DoEvents()
                 End If
             Next
-            '    End Sub)
         End Sub
 
         Private Sub KillAllBots()
             Dim t As Task = Task.Run(Sub()
-                For Each bot As Generic In _bots
-                    If bot.IsRunning Then bot.Kill(False)
-                Next
-                                        End Sub)
+                                         For Each bot As Generic In _bots
+                                             If bot.IsRunning Then bot.Kill(False)
+                                         Next
+                                     End Sub)
 
             t.Wait()
         End Sub
 
         Private Function ContainsProcess(commandLine As String)
-            Return _bots.Cast (Of Generic)().Any(Function(bot) commandLine.Contains(bot.ProcessId.ToString()))
+            Return _bots.Cast(Of Generic)().Any(Function(bot) commandLine.Contains(bot.ProcessId.ToString()))
         End Function
 
         Private Sub botsStarter_DoWork(sender As Object, e As DoWorkEventArgs) Handles batchStarter.DoWork
@@ -301,5 +290,10 @@ Namespace UserInterface
         Private Sub btnStartAll_Click(sender As Object, e As EventArgs) Handles btnStartAll.Click
             batchStarter.RunWorkerAsync()
         End Sub
+
+        Private Sub btnRemoveAll_Click(sender As Object, e As EventArgs) Handles btnRemoveAll.Click
+            batchRemove = True
+            Me.Close()
+        End Sub
     End Class
-End NameSpace
+End Namespace

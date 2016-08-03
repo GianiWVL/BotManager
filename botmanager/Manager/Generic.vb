@@ -41,24 +41,26 @@ Namespace Manager
         End Sub
 
         Protected Function Initialize() As Boolean
+            If BotInformation.TempExecutablePath <> "" Then Exit Function
             If File.Exists(ExecutablePath) Then
-                botInformation.TempExecutablePath = IO.CopyFolder(
+                BotInformation.TempExecutablePath = IO.CopyFolder(
                     Path.GetDirectoryName(ExecutablePath)) & "\" &
                                                     Path.GetFileName(ExecutablePath)
                 Return True
             Else
                 MsgBox("Path doesn't Exists")
-                My.Settings.ListOfPropertiesBots.Items.Remove(botInformation)
+                My.Settings.ListOfPropertiesBots.Items.Remove(BotInformation)
                 Return False
             End If
         End Function
 
         Public Sub Start()
+            Initialize()
             WriteSettings()
 
             Dim pInfo As New ProcessStartInfo
-            pInfo.WorkingDirectory = Path.GetDirectoryName(botInformation.TempExecutablePath)
-            pInfo.FileName = Path.GetFileName(botInformation.TempExecutablePath)
+            pInfo.WorkingDirectory = Path.GetDirectoryName(BotInformation.TempExecutablePath)
+            pInfo.FileName = Path.GetFileName(BotInformation.TempExecutablePath)
             pInfo.WindowStyle = ProcessWindowStyle.Maximized
             Dim p As Process = CmdLine.Run(pInfo, False)
 
