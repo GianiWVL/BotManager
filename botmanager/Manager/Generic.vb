@@ -70,10 +70,19 @@ Namespace Manager
             _p = Nothing
             _p = p
 
-            UpdateBotInformation()
-            PutConsoleInPanel()
-            Api.SendMessage(_p.MainWindowHandle, &H100, 13, 0)
-            _timer.Start()
+
+            Do Until _p.HasExited OrElse Api.GetChildWindows(PanelHandle).Contains(_p.MainWindowHandle)
+                PutConsoleInPanel(_p.MainWindowHandle)
+            Loop
+
+
+            If Not _p.HasExited Then 
+                Api.SendMessage(_p.MainWindowHandle, &H100, 13, 0)
+                UpdateBotInformation()
+                _timer.Start()
+            Else 
+                Start()
+            End If
         End Sub
 
         Private Sub UpdateBotInformation()
@@ -82,15 +91,15 @@ Namespace Manager
             IsRunning = True
         End Sub
 
-        Public Sub PutConsoleInPanel()
-            Api.SetParent(_handle, PanelHandle)
+        Private Sub PutConsoleInPanel(pHandle As Intptr)
+            Api.SetParent(pHandle, PanelHandle)
 
             If IsSelected Then
-                Api.ShowWindow(Handle, 5)
-                Api.SetWindowPos(Handle, 1, 0, 0, Control.FromHandle(PanelHandle).Width,
+                Api.ShowWindow(pHandle, 5)
+                Api.SetWindowPos(pHandle, 1, 0, 0, Control.FromHandle(PanelHandle).Width,
                                  Control.FromHandle(PanelHandle).Height, 0)
             Else
-                Api.ShowWindow(_p.MainWindowHandle, 0)
+                Api.ShowWindow(pHandle, 0)
             End If
         End Sub
 

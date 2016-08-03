@@ -6,7 +6,7 @@ Namespace Windows
         Public Shared Function Run(ByRef pInfo As ProcessStartInfo, waitForExit As Boolean) As Process
             If Not waitForExit Then
                 Dim pId = StartProcessNoActivate(pInfo)
-                Thread.Sleep(700)
+                Thread.Sleep(300)
                 Try
                     Return Process.GetProcessById(pId)
                 Catch

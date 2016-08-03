@@ -209,19 +209,9 @@ Namespace UserInterface
         End Sub
         Private Function StatusUpdate() As String
             Dim total As Double = 0
+            Dim caption As New StringBuilder(256)
             For Each bot As Generic In _bots
-                Dim contained = False
-                Dim caption As New StringBuilder(256)
                 If bot.IsRunning Then
-                    For Each intr In Api.GetChildWindows(_botPanel.Handle)
-                        If intr = bot.Handle Then
-                            contained = True
-                            Exit For
-                        End If
-                    Next
-                    If Not contained Then
-                        bot.PutConsoleInPanel()
-                    End If
                     caption.Clear()
                     Api.GetWindowText(bot.Handle, caption, caption.Capacity)
                     Dim str As String() = caption.ToString.Split("|")

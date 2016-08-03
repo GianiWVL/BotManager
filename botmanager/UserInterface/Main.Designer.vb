@@ -136,7 +136,7 @@
         'Timer
         '
         Me.Timer.Enabled = true
-        Me.Timer.Interval = 300
+        Me.Timer.Interval = 1000
         '
         'botTree
         '
