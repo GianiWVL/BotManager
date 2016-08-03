@@ -21,12 +21,12 @@ Namespace UserInterface
                 AddToGridView(_botProperties)
             Else
                 Select Case _botProperties.BotClass
-                    Case "BotManager.Manager.Haxton"
-                        AddToGridView(OfSupportedBots.GetInstance()("Haxton"))
-                    Case "BotManager.Manager.Spegeli"
-                        AddToGridView(OfSupportedBots.GetInstance()("Spegeli"))
-                    Case "BotManager.Manager.Necro"
-                        AddToGridView(OfSupportedBots.GetInstance()("Necro"))
+                    Case "BotManager.Manager.HaxtonBot"
+                        AddToGridView(OfSupportedBots.GetInstance()("HaxtonBot"))
+                    Case "BotManager.Manager.SpegeliBot"
+                        AddToGridView(OfSupportedBots.GetInstance()("SpegeliBot"))
+                    Case "BotManager.Manager.NecroBot"
+                        AddToGridView(OfSupportedBots.GetInstance()("NecroBot"))
                     Case "BotManager.Manager.PokeMobBot"
                         AddToGridView(OfSupportedBots.GetInstance()("PokeMobBot"))
                 End Select

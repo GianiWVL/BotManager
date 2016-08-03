@@ -1,49 +1,33 @@
 ﻿Imports System.ComponentModel
-Imports System.Configuration
 Imports System.Net
 Imports System.Threading
 Imports BotManager.Helpers
 Imports BotManager.List
 Imports BotManager.Properties
-Imports BotManager.Windows
-Imports Newtonsoft.Json.Linq
 
 Namespace UserInterface
     Public Class Downloading
-        Const Nuget As String = "nuget.exe"
-        Const NugetArgument As String = "restore "
-        Const MsBuild As String = "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
-        Private _compIncrement As Integer = 0
-        Private _currentComp As Integer = 0
-        Private Sub BackgroundWorker1_Completed(sender As Object, e As RunWorkerCompletedEventArgs) _
-            Handles BackgroundWorker1.RunWorkerCompleted
-
-            If Not e.Error Is Nothing Then 
-                Dim objWriter As New System.IO.StreamWriter("error.log")
-                objWriter.Write(e.Error.Message & vbCrLf & e.Error.StackTrace)
-                objWriter.Dispose()
-                Process.Start("error.log")
-            End If
-        End Sub
+        Private _forceUpdate As Boolean = False
+        Public WriteOnly Property ForceUpdate() As Boolean
+            Set
+                _forceUpdate = value
+            End Set
+        End Property
         Private Sub BackgroundWorker1_DoWork(sender As Object, e As DoWorkEventArgs) _
             Handles BackgroundWorker1.DoWork
 
-            If e.Argument Then
-                For Each supportedBotInformation As SupportedBotInformation In OfSupportedBots.GetInstance().Values
-                    InstallBotFirstStep(supportedBotInformation)
-                Next
-
-                For Each supportedBotInformation As SupportedBotInformation In OfSupportedBots.GetInstance().Values
-                    InstallBotSecondStep(supportedBotInformation)
-                Next
-            End If
-
             For Each supportedBotInformation As SupportedBotInformation In OfSupportedBots.GetInstance().Values
-                If supportedBotInformation.ReadSettings Then AddSettings(supportedBotInformation)
+                If e.Argument OrElse Not Installed(supportedBotInformation) Then
+                    InstallBot(supportedBotInformation)
+                End If
+
+                If Installed(supportedBotInformation) Then
+                    AddSettings(supportedBotInformation)
+                End If
             Next
+
+
             IO.DeleteFilesFromFolder(IO.AppData)
-
-
             BackgroundWorker1.ReportProgress(0, "Complete")
             Thread.Sleep(100)
         End Sub
@@ -51,220 +35,94 @@ Namespace UserInterface
         Private Sub BackgroundWorker1_ReportProgress(sender As Object,
                                                      e As ProgressChangedEventArgs) _
             Handles BackgroundWorker1.ProgressChanged
-            _currentComp += e.ProgressPercentage
-            downloadProgress.Value = _currentComp
+
             downloadLabel.Text = e.UserState.ToString()
         End Sub
 
         Private Sub BackgroundWorker1_RunWorkerCompleted(sender As Object,
                                                          e As RunWorkerCompletedEventArgs) _
             Handles BackgroundWorker1.RunWorkerCompleted
+
+            If Not e.Error Is Nothing Then
+                Dim objWriter As New StreamWriter("error.log")
+                objWriter.Write(e.Error.Message & vbCrLf & e.Error.StackTrace)
+                objWriter.Dispose()
+                Process.Start("error.log")
+            End If
+
             DialogResult = DialogResult.OK
+
             Main.Show()
             Me.Close()
         End Sub
 
-        Private Sub InstallBotFirstStep(ByRef supportedBotInformation As SupportedBotInformation)
+        Private Sub InstallBot(ByRef supportedBotInformation As SupportedBotInformation)
             DeleteOldBot(supportedBotInformation)
             DownloadBot(supportedBotInformation)
             UnZipBot(supportedBotInformation)
         End Sub
 
-        Private Sub InstallBotSecondStep(ByRef supportedBotInformation As SupportedBotInformation)
-            DownloadBotPackages(supportedBotInformation)
-            CompileBot(supportedBotInformation)
-            RunAndKill(supportedBotInformation)
-        End Sub
-
         Private Sub DeleteOldBot(ByRef supportedBotInformation As SupportedBotInformation)
-            If Not supportedBotInformation.DeleteOld Then
-                _currentComp += _compIncrement
-                Exit Sub
-            End If
-                BackgroundWorker1.ReportProgress(_compIncrement, "Deleting " & supportedBotInformation.Name & "directory")
-                IO.DeleteFilesFromFolder(supportedBotInformation.Name)
+            BackgroundWorker1.ReportProgress(1, "Deleting " & supportedBotInformation.Name & "directory")
+            IO.DeleteFilesFromFolder(supportedBotInformation.Name)
         End Sub
 
         Private Sub DownloadBot(ByRef supportedBotInformation As SupportedBotInformation)
-            If Not supportedBotInformation.DeleteOld AndAlso File.Exists(supportedBotInformation.ZipName) Then
-                _currentComp += _compIncrement
-                Exit Sub
-            End If
-                BackgroundWorker1.ReportProgress(_compIncrement, "Downloading " & supportedBotInformation.Name)
-                Http.DownloadRepository(supportedBotInformation.DownloadUrl, supportedBotInformation.ZipName)
+            BackgroundWorker1.ReportProgress(1, "Downloading " & supportedBotInformation.Name)
+            Http.DownloadRepository(supportedBotInformation.DownloadUrl, supportedBotInformation.ZipName)
         End Sub
 
         Private Sub UnZipBot(ByRef supportedBotInformation As SupportedBotInformation)
-            If Not supportedBotInformation.UnZip Then
-                _currentComp += _compIncrement
-                Exit Sub
-            End If
-                BackgroundWorker1.ReportProgress(_compIncrement, "Unzipping " & supportedBotInformation.Name)
-                IO.Unzip(supportedBotInformation.ZipName, supportedBotInformation.UnZipDirectory)
-                If supportedBotInformation.MoveFolder Then
-                    Directory.Delete(supportedBotInformation.MoveTo)
-                    Directory.Move(supportedBotInformation.WorkingDirectory, supportedBotInformation.MoveTo)
-                    Directory.Delete(supportedBotInformation.Name)
-                End If
-                File.Delete(supportedBotInformation.ZipName)
-        End Sub
-
-        Private Sub DownloadBotPackages(ByRef supportedBotInformation As SupportedBotInformation)
-            If Not supportedBotInformation.DownloadPackages Then
-                _currentComp += _compIncrement
-                Exit Sub
-            End If
-                BackgroundWorker1.ReportProgress(_compIncrement,
-                                                 "Downloading packages for " & supportedBotInformation.Name)
-                Dim nugetInfo As New ProcessStartInfo
-                nugetInfo.FileName = Nuget
-                nugetInfo.Arguments = NugetArgument & supportedBotInformation.WorkingDirectory
-                nugetInfo.WindowStyle = ProcessWindowStyle.Hidden
-                CmdLine.Run(nugetInfo, True)
-        End Sub
-
-        Private Sub CompileBot(ByRef supportedBotInformation As SupportedBotInformation)
-            If Not supportedBotInformation.Compile Then
-                _currentComp += _compIncrement
-                Exit Sub
-            End If
-                BackgroundWorker1.ReportProgress(_compIncrement, "Compiling " & supportedBotInformation.Name)
-                Dim msBuildInfo As New ProcessStartInfo
-                msBuildInfo.WorkingDirectory = supportedBotInformation.WorkingDirectory
-                msBuildInfo.FileName = Chr(34) & MsBuild & Chr(34)
-                msBuildInfo.WindowStyle = ProcessWindowStyle.Hidden
-                CmdLine.Run(msBuildInfo, True)
-        End Sub
-
-        Private Sub RunAndKill(ByRef supportedBotInformation As SupportedBotInformation)
-            If Not supportedBotInformation.ReadSettings Then Exit Sub
-            If Not File.Exists(supportedBotInformation.ExecutablePath) Then
-                Throw New Exception("Failed to run once: " & supportedBotInformation.Name)
-            End If
-
-            BackgroundWorker1.ReportProgress(_compIncrement, "Running " & supportedBotInformation.Name & " once")
-            Dim pInfo As New ProcessStartInfo
-            pInfo.WorkingDirectory = Path.GetDirectoryName(supportedBotInformation.ExecutablePath)
-            pInfo.FileName = Path.GetFileName(supportedBotInformation.ExecutablePath)
-            pInfo.WindowStyle = ProcessWindowStyle.Minimized
-            Dim p As Process = CmdLine.Run(pInfo, False)
-
-            Thread.Sleep(3000)
-            If Not p Is Nothing AndAlso Not p.HasExited Then p.Kill()
+            BackgroundWorker1.ReportProgress(1, "Unzipping " & supportedBotInformation.Name)
+            IO.Unzip(supportedBotInformation.ZipName, supportedBotInformation.UnZipDirectory)
+            File.Delete(supportedBotInformation.ZipName)
         End Sub
 
         Private Sub AddSettings(ByRef supportedBotInformation As SupportedBotInformation)
-            BackgroundWorker1.ReportProgress(_compIncrement, "Reading " & supportedBotInformation.Name & "settings")
+            BackgroundWorker1.ReportProgress(1, "Reading " & supportedBotInformation.Name & "settings")
             If File.Exists(supportedBotInformation.ExecutablePath) Then
                 Select Case supportedBotInformation.Name
-                    Case "Spegeli"
-                        SpegeliReadSettings(supportedBotInformation)
-                    Case "Haxton"
-                        HaxtonReadSettings(supportedBotInformation)
-                    Case "Necro"
-                        NecroMoboReadSettings(supportedBotInformation)
+                    Case "SpegeliBot"
+                        Manager.SpegeliBot.ReadSettings(supportedBotInformation)
+                    Case "HaxtonBot"
+                        Manager.HaxtonBot.ReadSettings(supportedBotInformation)
+                    Case "NecroBot"
+                        Manager.NecroBot.ReadSettings(supportedBotInformation)
                     Case "PokeMobBot"
-                        NecroMoboReadSettings(supportedBotInformation)
+                        Manager.PokeMobBot.ReadSettings(supportedBotInformation)
                 End Select
-            Else
-                MsgBox("There was an error compiling bot: " & supportedBotInformation.Name)
-                'Throw New Exception("There was an error compiling bot: " & supportedBotInformation.Name)
             End If
         End Sub
-
-        Private Sub NecroMoboReadSettings(ByRef supportedBotInformation As SupportedBotInformation)
-            Dim settings As String =
-                    New StreamReader(
-                        Path.GetDirectoryName(supportedBotInformation.ExecutablePath) & "\Config\config.json").ReadToEnd()
-            Dim auth As String =
-                    New StreamReader(Path.GetDirectoryName(supportedBotInformation.ExecutablePath) & "\Config\auth.json") _
-                    .ReadToEnd()
-            Dim jObjectSettings As JObject = JObject.Parse(settings)
-            Dim jObjectAuth As JObject = JObject.Parse(auth)
-
-            For each jO As JProperty IN jObjectAuth.Children()
-                If (jO.Value.GetType().ToString().Contains("Newtonsoft.Json.Linq.JValue")) Then
-                    supportedBotInformation.AddKeyValue(jo.Name, jo.Value.ToString())
-                End If
-            Next
-
-            For each jO As JProperty IN jObjectSettings.Children()
-                If (jO.Value.GetType().ToString().Contains("Newtonsoft.Json.Linq.JValue")) Then
-                    supportedBotInformation.AddKeyValue(jo.Name, jo.Value.ToString())
-                End If
-            Next
-        End Sub
-
-        Private Sub HaxtonReadSettings(ByRef supportedBotInformation As SupportedBotInformation)
-            Dim fileMap As New ExeConfigurationFileMap()
-            fileMap.ExeConfigFilename =
-                supportedBotInformation.ExecutablePath & ".config"
-            Dim config As Configuration = ConfigurationManager.OpenMappedExeConfiguration(fileMap,
-                                                                                          ConfigurationUserLevel.None)
-            Dim settingsSection
-            settingsSection = config.AppSettings
-
-            For Each setting In settingsSection.Settings
-                supportedBotInformation.AddKeyValue(setting.[Key], setting.Value.ToString())
-            Next
-        End Sub
-
-        Private Sub SpegeliReadSettings(ByRef supportedBotInformation As SupportedBotInformation)
-
-            Dim fileMap As New ExeConfigurationFileMap()
-            fileMap.ExeConfigFilename =
-                supportedBotInformation.ExecutablePath & ".config"
-            Dim config As Configuration = ConfigurationManager.OpenMappedExeConfiguration(fileMap,
-                                                                                          ConfigurationUserLevel.None)
-            Dim settingsSection
-            settingsSection = config.GetSection("userSettings/PokemonGo.RocketAPI.Console.UserSettings")
-
-            For Each setting In settingsSection.Settings
-                supportedBotInformation.AddKeyValue(setting.Name, setting.Value.ValueXml.InnerText)
-            Next
-        End Sub
-
-        Private Sub btnYes_Click(sender As Object, e As EventArgs) Handles btnYes.Click
-            btnYes.Visible = False
-            btnNo.Visible = False
-            Me.Size = New Size("296", "92")
-            BackgroundWorker1.RunWorkerAsync(True)
-            DialogResult = DialogResult.OK
-        End Sub
-
-        Private Sub btnNo_Click(sender As Object, e As EventArgs) Handles btnNo.Click
-            btnYes.Visible = False
-            btnNo.Visible = False
-            Me.Size = New Size("296", "92")
-            BackgroundWorker1.RunWorkerAsync(False)
-            DialogResult = DialogResult.Cancel
-        End Sub
-
         Private Sub Downloading_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+            Main.Hide()
             If File.Exists("BotManager.exe.old") Then File.Delete("BotManager.exe.old")
-            CheckForUpdates()
-            If Not File.Exists(MsBuild) Then
-                MsgBox("Install MSBuild")
-                End
-            End If
-            If Not Installed Then
-                BackgroundWorker1.RunWorkerAsync(True)
-                Me.Size = New Size("296", "92")
-            Else
-                btnYes.Visible = True
-                btnNo.Visible = True
-            End If
-            CheckForIllegalCrossThreadCalls = False
+            If My.Settings.AutoUpdate Then CheckForUpdates()
+            BackgroundWorker1.RunWorkerAsync(_forceUpdate)
         End Sub
+        ' Private Sub checkForUpdate(ByRef supportedBotInformation As SupportedBotInformation)
+        '    Dim client = New System.Net.WebClient
+        '    client.Headers.Add("user-agent", " Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0")
+        '    Dim commmitHistory = client.DownloadString(supportedBotInformation.commitsUrl)
+        '    Dim jObjectCommits As JArray = JArray.Parse(commmitHistory)
+        '    Dim lastVerSha As String = jObjectCommits(0)("sha").ToString
+        '    Dim currentVerSha As String = My.Settings(supportedBotInformation.Name & "sha")
+        '
+        '    If Not currentVerSha = lastVerSha Then
+        '        newVerAvailable = True
+        '        My.Settings(supportedBotInformation.Name & "sha") = lastVerSha
+        '        My.Settings.Save()
+        '    End If
+        'End Sub
         Private Sub CheckForUpdates()
-            Dim githubVersion As String = ""
+            Dim githubVersion = ""
             Try
-                Dim request As HttpWebRequest = HttpWebRequest.Create("https://raw.githubusercontent.com/chancity/BotManager/master/version")
+                Dim request As HttpWebRequest =
+                        HttpWebRequest.Create("https://raw.githubusercontent.com/chancity/BotManager/master/version")
                 request.Proxy = Nothing
                 request.UserAgent = "Pokemon"
                 Dim response As HttpWebResponse = request.GetResponse
-                Dim responseStream As System.IO.Stream = response.GetResponseStream
-                Dim streamReader As New System.IO.StreamReader(responseStream)
+                Dim responseStream As Stream = response.GetResponseStream
+                Dim streamReader As New StreamReader(responseStream)
                 Dim data As String = streamReader.ReadToEnd
                 streamReader.Close()
                 githubVersion = data.ToString.Trim()
@@ -273,23 +131,23 @@ Namespace UserInterface
             End Try
             If githubVersion = "" = False Then
                 If Application.ProductVersion = githubVersion = False Then
-                    MsgBox("Program has been updated! Restarting")
-                    My.Computer.FileSystem.RenameFile("BotManager.exe", "BotManager.exe.old")
-                    Http.DownloadRepository("https://github.com/chancity/BotManager/raw/master/download/BotManager.exe", "BotManager.exe")
-                    Process.Start("BotManager.exe")
-                    End
+
+                    Dim result As DialogResult = MessageBox.Show("Program has been updated! Would you like to update now?","",
+                                                                 MessageBoxButtons.YesNo, MessageBoxIcon.Information)
+
+                    If result = DialogResult.Yes Then
+                       My.Computer.FileSystem.RenameFile("BotManager.exe", "BotManager.exe.old")
+                       Http.DownloadRepository("https://github.com/chancity/BotManager/raw/master/download/BotManager.exe",
+                                            "BotManager.exe")
+                        Process.Start("BotManager.exe")
+                        End
+                    End If
                 End If
             End If
         End Sub
-        Private Function Installed() As Boolean
-            For Each supportedBotInformation As SupportedBotInformation In OfSupportedBots.GetInstance().Values
-                If _
-                    supportedBotInformation.Compile AndAlso
-                    Not Directory.Exists(supportedBotInformation.WorkingDirectory & "\") Then
-                    Return False
-                End If
-            Next
-            Return True
+
+        Private Function Installed(ByRef supportedBotInformation As SupportedBotInformation) As Boolean
+            Return File.Exists(supportedBotInformation.ExecutablePath)
         End Function
     End Class
 End NameSpace

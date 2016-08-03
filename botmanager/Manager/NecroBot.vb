@@ -3,7 +3,7 @@ Imports BotManager.Properties
 Imports Newtonsoft.Json.Linq
 
 Namespace Manager
-    Public Class Necro
+    Public Class NecroBot
         Inherits Generic
 
         Public Sub New(ByRef botInformation As BotInformation)
@@ -54,6 +54,29 @@ Namespace Manager
                     New StreamWriter(Path.GetDirectoryName(BotInformation.TempExecutablePath) & "\Config\config.json")
                 outputFile.Write(jObjectSettings.ToString())
             End Using
+        End Sub
+
+        Public Shared Sub ReadSettings(ByRef supportedBotInformation As SupportedBotInformation)
+            Dim settings As String =
+                    New StreamReader(
+                        Path.GetDirectoryName(supportedBotInformation.ExecutablePath) & "\Config\config.json").ReadToEnd()
+            Dim auth As String =
+                    New StreamReader(Path.GetDirectoryName(supportedBotInformation.ExecutablePath) & "\Config\auth.json") _
+                    .ReadToEnd()
+            Dim jObjectSettings As JObject = JObject.Parse(settings)
+            Dim jObjectAuth As JObject = JObject.Parse(auth)
+
+            For each jO As JProperty IN jObjectAuth.Children()
+                If (jO.Value.GetType().ToString().Contains("Newtonsoft.Json.Linq.JValue")) Then
+                    supportedBotInformation.AddKeyValue(jo.Name, jo.Value.ToString())
+                End If
+            Next
+
+            For each jO As JProperty IN jObjectSettings.Children()
+                If (jO.Value.GetType().ToString().Contains("Newtonsoft.Json.Linq.JValue")) Then
+                    supportedBotInformation.AddKeyValue(jo.Name, jo.Value.ToString())
+                End If
+            Next
         End Sub
     End Class
 End NameSpace

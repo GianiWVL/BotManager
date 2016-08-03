@@ -79,12 +79,12 @@ Namespace UserInterface
         Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
             Dim botInformation As New BotInformation()
 
-            If botSelectBox.Text = "Haxton" Then
-                botInformation.BotClass = "BotManager.Manager.Haxton"
-            ElseIf botSelectBox.Text = "Spegeli" Then
-                botInformation.BotClass = "BotManager.Manager.Spegeli"
-            ElseIf botSelectBox.Text = "Necro" Then
-                botInformation.BotClass = "BotManager.Manager.Necro"
+            If botSelectBox.Text = "HaxtonBot" Then
+                botInformation.BotClass = "BotManager.Manager.HaxtonBot"
+            ElseIf botSelectBox.Text = "SpegeliBot" Then
+                botInformation.BotClass = "BotManager.Manager.SpegeliBot"
+            ElseIf botSelectBox.Text = "NecroBot" Then
+                botInformation.BotClass = "BotManager.Manager.NecroBot"
             ElseIf botSelectBox.Text = "PokeMobBot" Then
                 botInformation.BotClass = "BotManager.Manager.PokeMobBot"
             Else
@@ -298,6 +298,17 @@ Namespace UserInterface
             _bots.Clear()
             My.Settings.ListOfPropertiesBots = New OfPropertiesBots()
             My.Settings.Save()
+        End Sub
+        Private Sub StripForceUpdate_click(sender As Object, e As EventArgs) Handles stripForceUpdate.Click
+            Dim dialog As New UserInterface.Downloading()
+            dialog.ForceUpdate = True
+            dialog.ShowDialog()
+            dialog.Dispose()
+        End Sub
+
+        Private Sub stripAutoUpdate_Click(sender As Object, e As EventArgs) Handles stripAutoUpdate.Click
+            My.Settings.AutoUpdate = stripAutoUpdate.Checked
+            my.Settings.Save()
         End Sub
     End Class
 End Namespace

@@ -11,60 +11,42 @@ Namespace List
         Public Shared Function GetInstance() As Dictionary(Of String, SupportedBotInformation)
             If _instances Is Nothing
                 _instances = New OfSupportedBots()
-                _instances.Add("Nuget", New SupportedBotInformation() With {
-                                  .Name = "Nuget", 
-                                  .DownloadUrl = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe",
-                                  .WorkingDirectory = "",
-                                  .ExecutablePath = "Nuget.exe",
-                                  .ZipName = "Nuget.exe",
-                                  .DisplayAsBot = False,
-                                  .DownloadPackages = False,
-                                  .ReadSettings = False,
-                                  .UnZip = False,
-                                  .DeleteOld = False,
-                                  .Compile = False})
 
-                _instances.Add("Spegeli", New SupportedBotInformation() With {
-                                  .Name = "Spegeli", 
-                                  .DownloadUrl = "https://github.com/Spegeli/Pokemon-Go-Rocket-API/archive/master.zip",
-                                  .WorkingDirectory = "Spegeli/PokemoGoBot-GottaCatchEmAll-master",
-                                  .ZipName = "Spegeli.zip",
-                                  .UnZipDirectory = "Spegeli",
-                                  .ExecutablePath =
-                                  "Spegeli/PokemoGoBot-GottaCatchEmAll-master/PokemonGo.RocketAPI.Console/bin/Debug/PokemonGo.RocketAPI.Console.exe",
-                                  .BotClass = "BotManager.Manager.Spegeli"})
+                _instances.Add("SpegeliBot", New SupportedBotInformation() With {
+                                  .Name = "SpegeliBot", 
+                                  .DownloadUrl = "https://github.com/chancity/BotManagerBots/raw/master/Bots/SpegeliBot/Release.zip",
+                                  .WorkingDirectory = "SpegeliBot/Release",
+                                  .ZipName = "SpegeliBot.zip",
+                                  .UnZipDirectory = "SpegeliBot",
+                                  .ExecutablePath = "SpegeliBot/Release/PokemonGo.RocketAPI.Console.exe",
+                                  .BotClass = "BotManager.Manager.SpegeliBot"})
 
-                _instances.Add("Haxton", New SupportedBotInformation() With {
-                                  .Name = "Haxton", 
-                                  .DownloadUrl = "https://github.com/d-haxton/HaxtonBot/archive/master.zip",
-                                  .WorkingDirectory = "Haxton/HaxtonBot-master",
-                                  .ZipName = "Haxton.zip",
-                                  .UnZipDirectory = "Haxton",
-                                  .ExecutablePath =
-                                  "Haxton/HaxtonBot-master/PokemonGo.Haxton.Console/bin/Debug/PokemonGo.Haxton.Console.exe",
-                                  .BotClass = "BotManager.Manager.Haxton"})
+                _instances.Add("HaxtonBot", New SupportedBotInformation() With {
+                                  .Name = "HaxtonBot", 
+                                  .DownloadUrl = "https://github.com/chancity/BotManagerBots/raw/master/Bots/HaxtonBot/Release.zip",
+                                  .WorkingDirectory = "HaxtonBot/Release",
+                                  .ZipName = "HaxtonBot.zip",
+                                  .UnZipDirectory = "HaxtonBot",
+                                  .ExecutablePath = "HaxtonBot/Release/PokemonGo.Haxton.Console.exe",
+                                  .BotClass = "BotManager.Manager.HaxtonBot"})
 
                 _instances.Add("PokeMobBot", New SupportedBotInformation() With {
                                   .Name = "PokeMobBot", 
-                                  .DownloadUrl = "https://github.com/PocketMobsters/PokeMobBot/releases/download/v1.1.3/Release.zip",
+                                  .DownloadUrl = "https://github.com/chancity/BotManagerBots/raw/master/Bots/PokeMobBot/Release.zip",
                                   .WorkingDirectory = "PokeMobBot/Release",
                                   .ZipName = "PokeMobBot.zip",
                                   .UnZipDirectory = "PokeMobBot",
                                   .ExecutablePath = "PokeMobBot/Release/PokeMobBot.exe",
-                                  .BotClass = "BotManager.Manager.PokeMobBot",
-                                  .Compile = False,
-                                  .DownloadPackages = False})
+                                  .BotClass = "BotManager.Manager.PokeMobBot"})
 
-               _instances.Add("Necro", New SupportedBotInformation() With {
-                                  .Name = "Necro", 
-                                  .DownloadUrl = "https://github.com/NECROBOTIO/NecroBot/releases/download/v0.6.3/Release.zip",
-                                  .WorkingDirectory = "Necro/Release",
-                                  .ZipName = "Necro.zip",
-                                  .UnZipDirectory = "Necro",
-                                  .ExecutablePath = "Necro/Release/NecroBot.exe",
-                                  .BotClass = "BotManager.Manager.Necro",
-                                  .Compile = False,
-                                  .DownloadPackages = False})
+               _instances.Add("NecroBot", New SupportedBotInformation() With {
+                                  .Name = "NecroBot", 
+                                  .DownloadUrl = "https://github.com/chancity/BotManagerBots/raw/master/Bots/NecroBot/Release.zip",
+                                  .WorkingDirectory = "NecroBot/Release",
+                                  .ZipName = "NecroBot.zip",
+                                  .UnZipDirectory = "NecroBot",
+                                  .ExecutablePath = "NecroBot/Release/NecroBot.exe",
+                                  .BotClass = "BotManager.Manager.NecroBot"})
 
                 Return _instances
             Else

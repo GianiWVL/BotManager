@@ -5,18 +5,11 @@ Namespace Properties
         Implements ISettings
         Public Property Name As String
         Public Property ZipName As String
-        Public Property UnZip As Boolean = True
         Public Property UnZipDirectory As String
         Public Property DownloadUrl As String
         Public Property WorkingDirectory As String
         Public Property ExecutablePath As String
-        Public Property Compile As Boolean = True
-        Public Property ReadSettings As Boolean = True
-        Public Property DownloadPackages As Boolean = True
         Public Property DisplayAsBot As Boolean = True
-        Public Property DeleteOld As Boolean = True
-        Public Property MoveFolder As Boolean = False
-        Public Property MoveTo As String
         Public Property BotClass As String
 
         Public Property SettingKeys As New List(Of String) Implements ISettings.SettingKeys

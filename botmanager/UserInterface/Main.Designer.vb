@@ -52,6 +52,10 @@
         Me.showPokemon = New System.Windows.Forms.CheckBox()
         Me.showExp = New System.Windows.Forms.CheckBox()
         Me.showLvl = New System.Windows.Forms.CheckBox()
+        Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
+        Me.stripSettings = New System.Windows.Forms.ToolStripMenuItem()
+        Me.stripAutoUpdate = New System.Windows.Forms.ToolStripMenuItem()
+        Me.stripForceUpdate = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.botsContainer,System.ComponentModel.ISupportInitialize).BeginInit
         Me.botsContainer.Panel1.SuspendLayout
         Me.botsContainer.Panel2.SuspendLayout
@@ -62,6 +66,7 @@
         Me.GroupBox1.SuspendLayout
         Me.statusStrip.SuspendLayout
         Me.GroupBox2.SuspendLayout
+        Me.MenuStrip1.SuspendLayout
         Me.SuspendLayout
         '
         'btnAdd
@@ -145,7 +150,7 @@
         Me.botTree.ShowLines = false
         Me.botTree.ShowPlusMinus = false
         Me.botTree.ShowRootLines = false
-        Me.botTree.Size = New System.Drawing.Size(228, 628)
+        Me.botTree.Size = New System.Drawing.Size(228, 622)
         Me.botTree.TabIndex = 16
         '
         'botPanel
@@ -156,7 +161,7 @@
         Me.botPanel.Location = New System.Drawing.Point(0, 0)
         Me.botPanel.Margin = New System.Windows.Forms.Padding(0)
         Me.botPanel.Name = "botPanel"
-        Me.botPanel.Size = New System.Drawing.Size(1077, 628)
+        Me.botPanel.Size = New System.Drawing.Size(1077, 622)
         Me.botPanel.TabIndex = 17
         '
         'BackgroundWorker
@@ -167,7 +172,7 @@
         Me.botsContainer.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom)  _
             Or System.Windows.Forms.AnchorStyles.Left)  _
             Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
-        Me.botsContainer.Location = New System.Drawing.Point(12, 68)
+        Me.botsContainer.Location = New System.Drawing.Point(12, 86)
         Me.botsContainer.Margin = New System.Windows.Forms.Padding(2)
         Me.botsContainer.Name = "botsContainer"
         '
@@ -179,7 +184,7 @@
         '
         Me.botsContainer.Panel2.Controls.Add(Me.botPanel)
         Me.botsContainer.Panel2MinSize = 0
-        Me.botsContainer.Size = New System.Drawing.Size(1308, 628)
+        Me.botsContainer.Size = New System.Drawing.Size(1308, 622)
         Me.botsContainer.SplitterDistance = 228
         Me.botsContainer.SplitterWidth = 3
         Me.botsContainer.TabIndex = 18
@@ -210,7 +215,7 @@
         Me.selectedOptionsGroup.Controls.Add(Me.btnStop)
         Me.selectedOptionsGroup.Controls.Add(Me.btnRestart)
         Me.selectedOptionsGroup.Controls.Add(Me.btnRemove)
-        Me.selectedOptionsGroup.Location = New System.Drawing.Point(12, 9)
+        Me.selectedOptionsGroup.Location = New System.Drawing.Point(12, 27)
         Me.selectedOptionsGroup.Name = "selectedOptionsGroup"
         Me.selectedOptionsGroup.Size = New System.Drawing.Size(293, 54)
         Me.selectedOptionsGroup.TabIndex = 22
@@ -223,7 +228,7 @@
         Me.batchOptionsGroup.Controls.Add(Me.btnStartAll)
         Me.batchOptionsGroup.Controls.Add(Me.btnStopAll)
         Me.batchOptionsGroup.Controls.Add(Me.btnRestartAll)
-        Me.batchOptionsGroup.Location = New System.Drawing.Point(311, 9)
+        Me.batchOptionsGroup.Location = New System.Drawing.Point(311, 27)
         Me.batchOptionsGroup.Name = "batchOptionsGroup"
         Me.batchOptionsGroup.Size = New System.Drawing.Size(299, 54)
         Me.batchOptionsGroup.TabIndex = 23
@@ -254,7 +259,7 @@
         '
         Me.donationGroup.Controls.Add(Me.paypalLabel)
         Me.donationGroup.Controls.Add(Me.repLabel)
-        Me.donationGroup.Location = New System.Drawing.Point(1054, 9)
+        Me.donationGroup.Location = New System.Drawing.Point(1054, 27)
         Me.donationGroup.Name = "donationGroup"
         Me.donationGroup.Size = New System.Drawing.Size(155, 54)
         Me.donationGroup.TabIndex = 24
@@ -276,7 +281,7 @@
         '
         Me.GroupBox1.Controls.Add(Me.btnAdd)
         Me.GroupBox1.Controls.Add(Me.botSelectBox)
-        Me.GroupBox1.Location = New System.Drawing.Point(616, 9)
+        Me.GroupBox1.Location = New System.Drawing.Point(616, 27)
         Me.GroupBox1.Name = "GroupBox1"
         Me.GroupBox1.Size = New System.Drawing.Size(241, 54)
         Me.GroupBox1.TabIndex = 22
@@ -286,7 +291,7 @@
         'statusStrip
         '
         Me.statusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.statusLabel})
-        Me.statusStrip.Location = New System.Drawing.Point(0, 705)
+        Me.statusStrip.Location = New System.Drawing.Point(0, 717)
         Me.statusStrip.Name = "statusStrip"
         Me.statusStrip.Size = New System.Drawing.Size(1331, 22)
         Me.statusStrip.TabIndex = 25
@@ -302,7 +307,7 @@
         Me.GroupBox2.Controls.Add(Me.showPokemon)
         Me.GroupBox2.Controls.Add(Me.showExp)
         Me.GroupBox2.Controls.Add(Me.showLvl)
-        Me.GroupBox2.Location = New System.Drawing.Point(863, 9)
+        Me.GroupBox2.Location = New System.Drawing.Point(863, 27)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(185, 54)
         Me.GroupBox2.TabIndex = 26
@@ -339,20 +344,56 @@
         Me.showLvl.Text = "LVL"
         Me.showLvl.UseVisualStyleBackColor = true
         '
+        'MenuStrip1
+        '
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.stripSettings})
+        Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
+        Me.MenuStrip1.Name = "MenuStrip1"
+        Me.MenuStrip1.Size = New System.Drawing.Size(1331, 24)
+        Me.MenuStrip1.TabIndex = 27
+        Me.MenuStrip1.Text = "MenuStrip1"
+        '
+        'stripSettings
+        '
+        Me.stripSettings.Checked = true
+        Me.stripSettings.CheckOnClick = true
+        Me.stripSettings.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.stripSettings.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.stripAutoUpdate, Me.stripForceUpdate})
+        Me.stripSettings.Name = "stripSettings"
+        Me.stripSettings.Size = New System.Drawing.Size(61, 20)
+        Me.stripSettings.Text = "Settings"
+        '
+        'stripAutoUpdate
+        '
+        Me.stripAutoUpdate.Checked = true
+        Me.stripAutoUpdate.CheckOnClick = true
+        Me.stripAutoUpdate.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.stripAutoUpdate.Name = "stripAutoUpdate"
+        Me.stripAutoUpdate.Size = New System.Drawing.Size(152, 22)
+        Me.stripAutoUpdate.Text = "AutoUpdate"
+        '
+        'stripForceUpdate
+        '
+        Me.stripForceUpdate.Name = "stripForceUpdate"
+        Me.stripForceUpdate.Size = New System.Drawing.Size(152, 22)
+        Me.stripForceUpdate.Text = "Force Update"
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6!, 13!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(1331, 727)
+        Me.ClientSize = New System.Drawing.Size(1331, 739)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.statusStrip)
+        Me.Controls.Add(Me.MenuStrip1)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.donationGroup)
         Me.Controls.Add(Me.batchOptionsGroup)
         Me.Controls.Add(Me.botsContainer)
         Me.Controls.Add(Me.selectedOptionsGroup)
         Me.Icon = CType(resources.GetObject("$this.Icon"),System.Drawing.Icon)
+        Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "Main"
         Me.Text = "Pokemon Go Bot Manager"
         Me.botsContainer.Panel1.ResumeLayout(false)
@@ -369,6 +410,8 @@
         Me.statusStrip.PerformLayout
         Me.GroupBox2.ResumeLayout(false)
         Me.GroupBox2.PerformLayout
+        Me.MenuStrip1.ResumeLayout(false)
+        Me.MenuStrip1.PerformLayout
         Me.ResumeLayout(false)
         Me.PerformLayout
 
@@ -400,5 +443,9 @@ End Sub
         Friend WithEvents showLvl As System.Windows.Forms.CheckBox
         Friend WithEvents btnStartAll As System.Windows.Forms.Button
         Friend WithEvents btnRemoveAll As System.Windows.Forms.Button
+        Friend WithEvents MenuStrip1 As MenuStrip
+        Friend WithEvents stripSettings As ToolStripMenuItem
+        Friend WithEvents stripForceUpdate As ToolStripMenuItem
+        Friend WithEvents stripAutoUpdate As ToolStripMenuItem
     End Class
 End NameSpace

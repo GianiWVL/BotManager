@@ -4,12 +4,12 @@ Namespace Manager
     Public Class BotFactory
         Public Shared Function GetBot(ByRef botProperties As BotInformation) As Generic
             Select Case botProperties.BotClass
-                Case "BotManager.Manager.Haxton"
-                    Return New Haxton(botProperties)
-                Case "BotManager.Manager.Spegeli"
-                    Return New Spegeli(botProperties)
-                Case "BotManager.Manager.Necro"
-                    Return New Necro(botProperties)
+                Case "BotManager.Manager.HaxtonBot"
+                    Return New HaxtonBot(botProperties)
+                Case "BotManager.Manager.SpegeliBot"
+                    Return New SpegeliBot(botProperties)
+                Case "BotManager.Manager.NecroBot"
+                    Return New NecroBot(botProperties)
                 Case "BotManager.Manager.PokeMobBot"
                     Return New PokeMobBot(botProperties)
             End Select

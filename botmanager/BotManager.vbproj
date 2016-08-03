@@ -128,9 +128,9 @@
     <Compile Include="Properties\BotInformation.vb" />
     <Compile Include="Properties\NecroSettings.vb" />
     <Compile Include="Properties\SupportedBotInformation.vb" />
-    <Compile Include="Manager\Haxton.vb" />
-    <Compile Include="Manager\Necro.vb" />
-    <Compile Include="Manager\Spegeli.vb" />
+    <Compile Include="Manager\HaxtonBot.vb" />
+    <Compile Include="Manager\NecroBot.vb" />
+    <Compile Include="Manager\SpegeliBot.vb" />
     <Compile Include="UserInterface\Downloading.Designer.vb">
       <DependentUpon>Downloading.vb</DependentUpon>
     </Compile>
