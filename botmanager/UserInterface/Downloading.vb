@@ -23,7 +23,7 @@ Namespace UserInterface
                 objWriter.Write(e.Error.StackTrace)
                 objWriter.Dispose()
                 Process.Start("error.log")
-                Me.Close()
+                'Me.Close()
             End If
         End Sub
         Private Sub BackgroundWorker1_DoWork(sender As Object, e As DoWorkEventArgs) _
@@ -167,7 +167,8 @@ Namespace UserInterface
                         NecroMoboReadSettings(supportedBotInformation)
                 End Select
             Else
-                Throw New Exception("There was an error compiling bot: " & supportedBotInformation.Name)
+                MsgBox("There was an error compiling bot: " & supportedBotInformation.Name)
+                'Throw New Exception("There was an error compiling bot: " & supportedBotInformation.Name)
             End If
         End Sub
 
