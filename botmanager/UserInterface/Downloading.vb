@@ -16,25 +16,24 @@ Namespace UserInterface
         Private _compIncrement As Integer = 0
         Private _currentComp As Integer = 0
 
+        Public Sub exitWithError(ByVal errorMsg, ByVal stackTrace)
+            MsgBox(errorMsg)
+            Dim objWriter As New System.IO.StreamWriter("log.txt")
+            objWriter.Write(stackTrace)
+            Me.Close()
+        End Sub
+
         Private Sub BackgroundWorker1_DoWork(sender As Object, e As DoWorkEventArgs) _
             Handles BackgroundWorker1.DoWork
 
             _compIncrement = 100/(OfSupportedBots.GetInstance().Count*5)
 
             For Each supportedBotInformation As SupportedBotInformation In OfSupportedBots.GetInstance().Values
-                Try
-                    InstallBotFirstStep(supportedBotInformation)
-                Catch ex As Exception
-                    ' MsgBox(ex.Message)
-                End Try
+                InstallBotFirstStep(supportedBotInformation)
             Next
 
             For Each supportedBotInformation As SupportedBotInformation In OfSupportedBots.GetInstance().Values
-                Try
-                    InstallBotSecondStep(supportedBotInformation)
-                Catch ex As Exception
-                    MsgBox(ex.Message)
-                End Try
+                InstallBotSecondStep(supportedBotInformation)
             Next
 
             BackgroundWorker1.ReportProgress(0, "Complete")
@@ -65,12 +64,7 @@ Namespace UserInterface
 
         Private Sub InstallBotSecondStep(ByRef supportedBotInformation As SupportedBotInformation)
             DownloadBotPackages(supportedBotInformation)
-            Try
-                CompileBot(supportedBotInformation)
-            Catch ex As Exception
-                MsgBox(ex.Message)
-                MsgBox(ex.StackTrace)
-            End Try
+            CompileBot(supportedBotInformation)
             RunAndKill(supportedBotInformation)
         End Sub
 
@@ -79,8 +73,12 @@ Namespace UserInterface
                 _currentComp += _compIncrement
                 Exit Sub
             End If
-            BackgroundWorker1.ReportProgress(_compIncrement, "Deleting " & supportedBotInformation.Name & "directory")
-            IO.DeleteFilesFromFolder(supportedBotInformation.Name)
+            Try
+                BackgroundWorker1.ReportProgress(_compIncrement, "Deleting " & supportedBotInformation.Name & "directory")
+                IO.DeleteFilesFromFolder(supportedBotInformation.Name)
+            Catch ex As Exception
+                exitWithError("There was an error deleting old bot.", ex.StackTrace)
+            End Try
         End Sub
 
         Private Sub DownloadBot(ByRef supportedBotInformation As SupportedBotInformation)
@@ -88,8 +86,12 @@ Namespace UserInterface
                 _currentComp += _compIncrement
                 Exit Sub
             End If
-            BackgroundWorker1.ReportProgress(_compIncrement, "Downloading " & supportedBotInformation.Name)
-            Http.DownloadRepository(supportedBotInformation.DownloadUrl, supportedBotInformation.ZipName)
+            Try
+                BackgroundWorker1.ReportProgress(_compIncrement, "Downloading " & supportedBotInformation.Name)
+                Http.DownloadRepository(supportedBotInformation.DownloadUrl, supportedBotInformation.ZipName)
+            Catch ex As Exception
+                exitWithError("There was an error downloading bot.", ex.StackTrace)
+            End Try
         End Sub
 
         Private Sub UnZipBot(ByRef supportedBotInformation As SupportedBotInformation)
@@ -97,14 +99,18 @@ Namespace UserInterface
                 _currentComp += _compIncrement
                 Exit Sub
             End If
-            BackgroundWorker1.ReportProgress(_compIncrement, "Unzipping " & supportedBotInformation.Name)
-            IO.Unzip(supportedBotInformation.ZipName, supportedBotInformation.UnZipDirectory)
-            If supportedBotInformation.MoveFolder Then
-                Directory.Delete(supportedBotInformation.MoveTo)
-                Directory.Move(supportedBotInformation.WorkingDirectory, supportedBotInformation.MoveTo)
-                Directory.Delete(supportedBotInformation.Name)
-            End If
-            File.Delete(supportedBotInformation.ZipName)
+            Try
+                BackgroundWorker1.ReportProgress(_compIncrement, "Unzipping " & supportedBotInformation.Name)
+                IO.Unzip(supportedBotInformation.ZipName, supportedBotInformation.UnZipDirectory)
+                If supportedBotInformation.MoveFolder Then
+                    Directory.Delete(supportedBotInformation.MoveTo)
+                    Directory.Move(supportedBotInformation.WorkingDirectory, supportedBotInformation.MoveTo)
+                    Directory.Delete(supportedBotInformation.Name)
+                End If
+                File.Delete(supportedBotInformation.ZipName)
+            Catch ex As Exception
+                exitWithError("There was an error unzipping bot.", ex.StackTrace)
+            End Try
         End Sub
 
         Private Sub DownloadBotPackages(ByRef supportedBotInformation As SupportedBotInformation)
@@ -112,13 +118,17 @@ Namespace UserInterface
                 _currentComp += _compIncrement
                 Exit Sub
             End If
-            BackgroundWorker1.ReportProgress(_compIncrement,
-                                             "Downloading packages for " & supportedBotInformation.Name)
-            Dim nugetInfo As New ProcessStartInfo
-            nugetInfo.FileName = Nuget
-            nugetInfo.Arguments = NugetArgument & supportedBotInformation.WorkingDirectory
-            nugetInfo.WindowStyle = ProcessWindowStyle.Hidden
-            CmdLine.Run(nugetInfo, True)
+            Try
+                BackgroundWorker1.ReportProgress(_compIncrement,
+                                                 "Downloading packages for " & supportedBotInformation.Name)
+                Dim nugetInfo As New ProcessStartInfo
+                nugetInfo.FileName = Nuget
+                nugetInfo.Arguments = NugetArgument & supportedBotInformation.WorkingDirectory
+                nugetInfo.WindowStyle = ProcessWindowStyle.Hidden
+                CmdLine.Run(nugetInfo, True)
+            Catch ex As Exception
+                exitWithError("There was an error downloading bot packages.", ex.StackTrace)
+            End Try
         End Sub
 
         Private Sub CompileBot(ByRef supportedBotInformation As SupportedBotInformation)
@@ -126,12 +136,16 @@ Namespace UserInterface
                 _currentComp += _compIncrement
                 Exit Sub
             End If
-            BackgroundWorker1.ReportProgress(_compIncrement, "Compiling " & supportedBotInformation.Name)
-            Dim msBuildInfo As New ProcessStartInfo
-            msBuildInfo.WorkingDirectory = supportedBotInformation.WorkingDirectory
-            msBuildInfo.FileName = Chr(34) & MsBuild & Chr(34)
-            msBuildInfo.WindowStyle = ProcessWindowStyle.Hidden
-            CmdLine.Run(msBuildInfo, True)
+            Try
+                BackgroundWorker1.ReportProgress(_compIncrement, "Compiling " & supportedBotInformation.Name)
+                Dim msBuildInfo As New ProcessStartInfo
+                msBuildInfo.WorkingDirectory = supportedBotInformation.WorkingDirectory
+                msBuildInfo.FileName = Chr(34) & MsBuild & Chr(34)
+                msBuildInfo.WindowStyle = ProcessWindowStyle.Hidden
+                CmdLine.Run(msBuildInfo, True)
+            Catch ex As Exception
+                exitWithError("There was an error compiling bot.", ex.StackTrace)
+            End Try
         End Sub
 
         Private Sub RunAndKill(ByRef supportedBotInformation As SupportedBotInformation)
@@ -139,15 +153,18 @@ Namespace UserInterface
             If Not File.Exists(supportedBotInformation.ExecutablePath) Then
                 MsgBox("Failed to run once: " & supportedBotInformation.Name)
             End If
+            Try
+                Dim pInfo As New ProcessStartInfo
+                pInfo.WorkingDirectory = Path.GetDirectoryName(supportedBotInformation.ExecutablePath)
+                pInfo.FileName = Path.GetFileName(supportedBotInformation.ExecutablePath)
+                pInfo.WindowStyle = ProcessWindowStyle.Minimized
+                Dim p As Process = CmdLine.Run(pInfo, False)
 
-            Dim pInfo As New ProcessStartInfo
-            pInfo.WorkingDirectory = Path.GetDirectoryName(supportedBotInformation.ExecutablePath)
-            pInfo.FileName = Path.GetFileName(supportedBotInformation.ExecutablePath)
-            pInfo.WindowStyle = ProcessWindowStyle.Minimized
-            Dim p As Process = CmdLine.Run(pInfo, False)
-
-            Thread.Sleep(3000)
-            If Not p Is Nothing AndAlso Not p.HasExited Then p.Kill()
+                Thread.Sleep(3000)
+                If Not p Is Nothing AndAlso Not p.HasExited Then p.Kill()
+            Catch ex As Exception
+                exitWithError("There was an error initializing bot.", ex.StackTrace)
+            End Try
         End Sub
 
         Private Sub AddSettings(ByRef supportedBotInformation As SupportedBotInformation)
@@ -163,9 +180,7 @@ Namespace UserInterface
                         NecroMoboReadSettings(supportedBotInformation)
                 End Select
             Else
-                Msgbox("Bot Manager failed to compile bot: " & supportedBotInformation.Name)
-                ' Process.Start(
-                '  "http://www.ownedcore.com/forums/pokemon-go/pokemon-go-hacks-cheats/566095-bot-manager-auto-update-includes-multiple-bots-multi-account.html")
+                exitWithError("There was an error compiling bot.", "Error compiling " & supportedBotInformation.Name)
             End If
         End Sub
 
@@ -235,8 +250,8 @@ Namespace UserInterface
         End Sub
 
         Private Sub Downloading_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-            ' If File.Exists("BotManager.exe.old") Then File.Delete("BotManager.exe.old")
-            'CheckForUpdates()
+            If File.Exists("BotManager.exe.old") Then File.Delete("BotManager.exe.old")
+            CheckForUpdates()
             If Not File.Exists(MsBuild) Then
                 MsgBox("Install MSBuild")
                 End
@@ -278,9 +293,7 @@ Namespace UserInterface
         Private Sub Downloading_Closing(sender As Object, e As EventArgs) Handles MyBase.Closing
             For Each supportedBotInformation As SupportedBotInformation In OfSupportedBots.GetInstance().Values
                 If supportedBotInformation.ReadSettings Then AddSettings(supportedBotInformation)
-
             Next
-
             IO.DeleteFilesFromFolder(IO.AppData)
         End Sub
 

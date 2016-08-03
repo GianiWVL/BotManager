@@ -41,7 +41,7 @@ Namespace Manager
         End Sub
 
         Protected Function Initialize() As Boolean
-            If BotInformation.TempExecutablePath <> "" Then Exit Function
+            If BotInformation.TempExecutablePath <> "" Then Return False
             If File.Exists(ExecutablePath) Then
                 BotInformation.TempExecutablePath = IO.CopyFolder(
                     Path.GetDirectoryName(ExecutablePath)) & "\" &
