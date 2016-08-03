@@ -218,11 +218,11 @@ Namespace UserInterface
                     Dim str As String() = caption.ToString.Split("|")
                     If str.Length >= 2 Then
                         Dim parts
-                        If (bot.BotInformation.BotClass = "BotManager.Manager.Haxton") Then
+                        If (bot.BotInformation.BotClass = "BotManager.Manager.HaxtonBot") Then
                             parts = str(1).Split("-")(2)
-                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.Spegeli") Then
+                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.SpegeliBot") Then
                             parts = str(0).Split("(")(0).Split("-")(2)
-                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.Necro") Then
+                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.NecroBot") Then
                             parts = str(0).Split("-")(2).Split("(")(0)
                         ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.PokeMobBot") Then
                             parts = str(0).Split("-")(2).Split("(")(0)

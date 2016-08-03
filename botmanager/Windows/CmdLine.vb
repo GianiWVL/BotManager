@@ -3,25 +3,13 @@ Imports System.Threading
 
 Namespace Windows
     Public Class CmdLine
-        Public Shared Function Run(ByRef pInfo As ProcessStartInfo, waitForExit As Boolean) As Process
-            If Not waitForExit Then
-                Dim pId = StartProcessNoActivate(pInfo)
-                Thread.Sleep(300)
-                Try
-                    Return Process.GetProcessById(pId)
-                Catch
-                    Return Nothing
-                End Try
-            End If
-
-            Dim p As Process = Process.Start(pInfo)
-            If waitForExit Then
-                While Not p.HasExited
-                    Thread.Sleep(50)
-                End While
-            End If
-
-            Return p
+        Public Shared Function Run(ByRef pInfo As ProcessStartInfo) As Process
+            Dim pId = StartProcessNoActivate(pInfo)
+            Try
+                Return Process.GetProcessById(pId)
+            Catch
+                Return Nothing
+            End Try
         End Function
 
         <DllImport("kernel32.dll")>

@@ -117,7 +117,7 @@ Namespace UserInterface
             Dim githubVersion = ""
             Try
                 Dim request As HttpWebRequest =
-                        HttpWebRequest.Create("https://raw.githubusercontent.com/chancity/BotManager/master/version")
+                        HttpWebRequest.Create("https://raw.githubusercontent.com/chancity/BotManagerBots/master/VERSION")
                 request.Proxy = Nothing
                 request.UserAgent = "Pokemon"
                 Dim response As HttpWebResponse = request.GetResponse
@@ -137,7 +137,7 @@ Namespace UserInterface
 
                     If result = DialogResult.Yes Then
                        My.Computer.FileSystem.RenameFile("BotManager.exe", "BotManager.exe.old")
-                       Http.DownloadRepository("https://github.com/chancity/BotManager/raw/master/download/BotManager.exe",
+                       Http.DownloadRepository("https://github.com/chancity/BotManagerBots/raw/master/Download/BotManager.exe",
                                             "BotManager.exe")
                         Process.Start("BotManager.exe")
                         End

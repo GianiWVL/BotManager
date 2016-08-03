@@ -45,7 +45,7 @@ Namespace Manager
 
         Protected ExecutablePath As String = ""
         Private _p As Process
-        Private ReadOnly _timer As New Timer(1000)
+        Private ReadOnly _timer As New Timer(500)
         Private _startTime As Date = Nothing
         Public MustOverride Sub WriteSettings()
 
@@ -80,7 +80,7 @@ Namespace Manager
             pInfo.WorkingDirectory = Path.GetDirectoryName(BotInformation.TempExecutablePath)
             pInfo.FileName = Path.GetFileName(BotInformation.TempExecutablePath)
             pInfo.WindowStyle = ProcessWindowStyle.Maximized
-            Dim p As Process = CmdLine.Run(pInfo, False)
+            Dim p As Process = CmdLine.Run(pInfo)
 
             _p = Nothing
             _p = p
