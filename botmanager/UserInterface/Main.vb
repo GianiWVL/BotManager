@@ -29,7 +29,6 @@ Namespace UserInterface
         End Sub
 
         Public Shared Sub SetDoubleBuffered(c As Control)
-            'http://blogs.msdn.com/oldnewthing/archive/2006/01/03/508694.aspx
             If SystemInformation.TerminalServerSession Then
                 Return
             End If
@@ -177,53 +176,6 @@ Namespace UserInterface
             If Not BackgroundWorker.IsBusy Then
                 BackgroundWorker.RunWorkerAsync()
             End If
-            Dim total As Double = 0
-            For Each treeNode As TreeNode In botTree.Nodes
-                Dim bot = DirectCast(treeNode.Tag, Generic)
-                Dim contained = False
-                Dim caption As New StringBuilder(256)
-                If bot.IsRunning Then
-                    For Each intr In Api.GetChildWindows(_botPanel.Handle)
-                        If intr = bot.Handle Then
-                            contained = True
-                            Exit For
-                        End If
-                    Next
-                    If Not contained Then
-                        bot.PutConsoleInPanel()
-                    End If
-                    caption.Clear()
-                    Api.GetWindowText(bot.Handle, caption, caption.Capacity)
-                    Dim str As String() = caption.ToString.Split("|")
-                    If str.Length >= 2 Then
-                        Dim parts
-                        If (bot.BotInformation.BotClass = "BotManager.Manager.Haxton") Then
-                            parts = str(1).Split("-")(2)
-                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.Spegeli") Then
-                            parts = str(0).Split("(")(0).Split("-")(2)
-                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.Necro") Then
-                            parts = str(0).Split("-")(2).Split("(")(0)
-                        End If
-                        Dim lvl = parts
-                        Dim exp = str(2)
-                        Dim poke = str(3)
-                        treeNode.Text = treeNode.Name
-                        If showLvl.Checked Then
-                            treeNode.Text += "- " & lvl
-                        End If
-                        If showExp.Checked Then
-                            treeNode.Text += " - " & exp
-                        End If
-                        If showPokemon.Checked Then
-                            treeNode.Text += " - " & poke
-                        End If
-                        total += CDbl(str(2).Split(":")(1).Trim())
-                    End If
-                End If
-            Next
-
-            statusLabel.Text = String.Format("Total Bots: {0}, Average EXP: {1}, Total EXP: {2}", botTree.Nodes.Count,
-                                             total/botTree.Nodes.Count, total)
         End Sub
 
         Private Sub botTree_AfterSelect(sender As Object, e As TreeViewEventArgs) Handles botTree.AfterSelect
@@ -255,11 +207,69 @@ Namespace UserInterface
                 End If
             Next
         End Sub
+        Private Function StatusUpdate() As String
+            Dim total As Double = 0
+            For Each bot As Generic In _bots
+                Dim contained = False
+                Dim caption As New StringBuilder(256)
+                If bot.IsRunning Then
+                    For Each intr In Api.GetChildWindows(_botPanel.Handle)
+                        If intr = bot.Handle Then
+                            contained = True
+                            Exit For
+                        End If
+                    Next
+                    If Not contained Then
+                        bot.PutConsoleInPanel()
+                    End If
+                    caption.Clear()
+                    Api.GetWindowText(bot.Handle, caption, caption.Capacity)
+                    Dim str As String() = caption.ToString.Split("|")
+                    If str.Length >= 2 Then
+                        Dim parts
+                        If (bot.BotInformation.BotClass = "BotManager.Manager.Haxton") Then
+                            parts = str(1).Split("-")(2)
+                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.Spegeli") Then
+                            parts = str(0).Split("(")(0).Split("-")(2)
+                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.Necro") Then
+                            parts = str(0).Split("-")(2).Split("(")(0)
+                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.PokeMobBot") Then
+                            parts = str(0).Split("-")(2).Split("(")(0)
+                        End If
+                        bot.Level = parts
+                        bot.ExperiencePerHour = str(2)
+                        bot.PokeStopsPerHour = str(3)
+                        
+                        total += CDbl(str(2).Split(":")(1).Trim())
+                    End If
+                End If
+            Next
+
+            Return String.Format("Total Bots: {0}, Average EXP: {1}, Total EXP: {2}", botTree.Nodes.Count,
+                                             total/botTree.Nodes.Count, total)
+        End Function
 
         Private Sub BackgroundWorker_DoWork(sender As Object, e As DoWorkEventArgs) Handles BackgroundWorker.DoWork
             TimerTask()
+            e.Result = StatusUpdate()
         End Sub
+        Private Sub BackgroundWorker_Complete(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorker.RunWorkerCompleted
+            For Each treeNode As TreeNode In botTree.Nodes
+                Dim bot = DirectCast(treeNode.Tag, Generic)
+                treeNode.Text = treeNode.Name
+                If showLvl.Checked Then
+                    treeNode.Text &= " - " & bot.Level
+                End If
+                If showExp.Checked Then
+                    treeNode.Text &= " - " & bot.ExperiencePerHour
+                End If
+                If showPokemon.Checked Then
+                    treeNode.Text &= " - " & bot.PokeStopsPerHour
+                End If
+            Next
 
+            statusLabel.Text = e.Result.ToString()
+        End Sub
         Private Sub ResizeCmd()
             If botTree.SelectedNode Is Nothing Then Exit Sub
             Dim bot = DirectCast(botTree.SelectedNode.Tag, Generic)

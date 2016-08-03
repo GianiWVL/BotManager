@@ -9,6 +9,9 @@ Namespace Manager
         Public IsRunning As Boolean = False
         Public IsSelected As Boolean = False
         Public Shared PanelHandle As Integer
+        Public Level As String = ""
+        Public ExperiencePerHour As String = ""
+        Public PokeStopsPerHour As String
         Private _processId As Integer
 
         Public ReadOnly Property ProcessId As Integer
