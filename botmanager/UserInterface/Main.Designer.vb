@@ -52,7 +52,7 @@
         Me.showPokemon = New System.Windows.Forms.CheckBox()
         Me.showExp = New System.Windows.Forms.CheckBox()
         Me.showLvl = New System.Windows.Forms.CheckBox()
-        Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
+        Me.stripMenu = New System.Windows.Forms.MenuStrip()
         Me.stripSettings = New System.Windows.Forms.ToolStripMenuItem()
         Me.stripAutoUpdate = New System.Windows.Forms.ToolStripMenuItem()
         Me.stripForceUpdate = New System.Windows.Forms.ToolStripMenuItem()
@@ -66,7 +66,7 @@
         Me.GroupBox1.SuspendLayout
         Me.statusStrip.SuspendLayout
         Me.GroupBox2.SuspendLayout
-        Me.MenuStrip1.SuspendLayout
+        Me.stripMenu.SuspendLayout
         Me.SuspendLayout
         '
         'btnAdd
@@ -344,14 +344,14 @@
         Me.showLvl.Text = "LVL"
         Me.showLvl.UseVisualStyleBackColor = true
         '
-        'MenuStrip1
+        'stripMenu
         '
-        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.stripSettings})
-        Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
-        Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(1331, 24)
-        Me.MenuStrip1.TabIndex = 27
-        Me.MenuStrip1.Text = "MenuStrip1"
+        Me.stripMenu.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.stripSettings})
+        Me.stripMenu.Location = New System.Drawing.Point(0, 0)
+        Me.stripMenu.Name = "stripMenu"
+        Me.stripMenu.Size = New System.Drawing.Size(1331, 24)
+        Me.stripMenu.TabIndex = 27
+        Me.stripMenu.Text = "MenuStrip1"
         '
         'stripSettings
         '
@@ -386,14 +386,14 @@
         Me.ClientSize = New System.Drawing.Size(1331, 739)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.statusStrip)
-        Me.Controls.Add(Me.MenuStrip1)
+        Me.Controls.Add(Me.stripMenu)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.donationGroup)
         Me.Controls.Add(Me.batchOptionsGroup)
         Me.Controls.Add(Me.botsContainer)
         Me.Controls.Add(Me.selectedOptionsGroup)
         Me.Icon = CType(resources.GetObject("$this.Icon"),System.Drawing.Icon)
-        Me.MainMenuStrip = Me.MenuStrip1
+        Me.MainMenuStrip = Me.stripMenu
         Me.Name = "Main"
         Me.Text = "Pokemon Go Bot Manager"
         Me.botsContainer.Panel1.ResumeLayout(false)
@@ -410,8 +410,8 @@
         Me.statusStrip.PerformLayout
         Me.GroupBox2.ResumeLayout(false)
         Me.GroupBox2.PerformLayout
-        Me.MenuStrip1.ResumeLayout(false)
-        Me.MenuStrip1.PerformLayout
+        Me.stripMenu.ResumeLayout(false)
+        Me.stripMenu.PerformLayout
         Me.ResumeLayout(false)
         Me.PerformLayout
 
@@ -443,7 +443,7 @@ End Sub
         Friend WithEvents showLvl As System.Windows.Forms.CheckBox
         Friend WithEvents btnStartAll As System.Windows.Forms.Button
         Friend WithEvents btnRemoveAll As System.Windows.Forms.Button
-        Friend WithEvents MenuStrip1 As MenuStrip
+        Friend WithEvents stripMenu As MenuStrip
         Friend WithEvents stripSettings As ToolStripMenuItem
         Friend WithEvents stripForceUpdate As ToolStripMenuItem
         Friend WithEvents stripAutoUpdate As ToolStripMenuItem

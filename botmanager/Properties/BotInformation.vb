@@ -6,7 +6,6 @@ Namespace Properties
     Public Class BotInformation
         Implements ISettings
         Public TempExecutablePath As String = ""
-        Public ProjectPath As String = ""
         Public RestartTimer As Integer
         Public Hide As Boolean = False
         Public BotClass As String
