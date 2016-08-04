@@ -217,6 +217,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\YellowBall96.png" />
     <None Include="bin\Debug\Newtonsoft.Json.dll" />
     <Content Include="Chansey-Dribbble.ico" />
   </ItemGroup>
