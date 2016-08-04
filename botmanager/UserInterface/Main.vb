@@ -5,6 +5,8 @@ Imports System.Text
 Imports BotManager.List
 Imports BotManager.Manager
 Imports BotManager.Properties
+Imports BotManager.UserInterface.Download
+Imports BotManager.UserInterface.Settings
 Imports BotManager.Windows
 
 Namespace UserInterface
@@ -16,10 +18,11 @@ Namespace UserInterface
 
         Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
             Try
-                For Each supportedBotInformation As SupportedBotInformation In OfSupportedBots.GetInstance().Values
-                    If Not supportedBotInformation.DisplayAsBot Then Continue For
-                    botSelectBox.Items.Add(supportedBotInformation.Name)
-                    botSelectBox.SelectedItem = botSelectBox.Items.Item(0)
+                For Each key As String In SupportedBots.Bots.Keys
+                    If SupportedBots.Bots(key).Installed() Then
+                        botSelectBox.Items.Add(key)
+                        botSelectBox.SelectedItem = botSelectBox.Items.Item(0)
+                    End If
                 Next
             Catch ex As Exception
                 MsgBox("Error at load " & ex.Message)
@@ -43,7 +46,7 @@ Namespace UserInterface
         End Sub
 
         Private Sub Main_HasLoad(sender As Object, e As EventArgs) Handles MyBase.Shown
-            Generic.PanelHandle = botPanel.Handle
+            Manager.Bot.PanelHandle = botPanel.Handle
             If My.Settings.ListOfPropertiesBots Is Nothing Then
                 My.Settings.ListOfPropertiesBots = New OfPropertiesBots
             Else
@@ -55,7 +58,7 @@ Namespace UserInterface
 
         Private Sub Main_Closed(sender As Object, e As EventArgs) Handles MyBase.Closed
             Dim t As Task = Task.Run(Sub()
-                For Each bot As Generic In _bots
+                For Each bot As Manager.Bot In _bots
                     bot.Dispose()
                 Next
                                         End Sub)
@@ -65,34 +68,28 @@ Namespace UserInterface
 
         Private Sub CreateTreeNode(ByRef botInformation As BotInformation)
             Dim newTreeNode As New TreeNode
-            Dim title As String = BotInformation.GetSettingValue("PtcUsername")
-            If title.ToLower().Contains("username") Then title = BotInformation.GetSettingValue("GoogleEmail")
-            If title = "" Then title = BotInformation.GetSettingValue("GoogleUsername")
+            Dim title As String = BotInformation.BotSettings("PtcUsername")
+            If title.ToLower().Contains("username") Then title = BotInformation.BotSettings("GoogleEmail")
+            If title = "" Then title = BotInformation.BotSettings("GoogleUsername")
             newTreeNode.Name = title
             newTreeNode.Text = title
-            Dim bot As Generic = BotFactory.GetBot(botInformation)
+            Dim bot As Manager.Bot = New Manager.Bot(botInformation)
             _bots.Add(bot)
             newTreeNode.Tag = bot
             botTree.Nodes.Add(newTreeNode)
         End Sub
 
-        Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
-            Dim botInformation As New BotInformation()
+        Private Sub btnAdd_Click(sender As Object, e As EventArgs) 
+            Dim botInformation As BotInformation
 
-            If botSelectBox.Text = "HaxtonBot" Then
-                botInformation.BotClass = "BotManager.Manager.HaxtonBot"
-            ElseIf botSelectBox.Text = "SpegeliBot" Then
-                botInformation.BotClass = "BotManager.Manager.SpegeliBot"
-            ElseIf botSelectBox.Text = "NecroBot" Then
-                botInformation.BotClass = "BotManager.Manager.NecroBot"
-            ElseIf botSelectBox.Text = "PokeMobBot" Then
-                botInformation.BotClass = "BotManager.Manager.PokeMobBot"
+            If botSelectBox.Text <> "" Then
+                botInformation = New BotInformation(SupportedBots.Bots(botSelectBox.Text))
             Else
                 botInformation = Nothing
                 MsgBox("Select bot type")
                 Exit Sub
             End If
-            Dim dialog As New SettingsEditor(botInformation)
+            Dim dialog As New Settings.Bot(botInformation)
 
 
             If dialog.ShowDialog() = DialogResult.OK Then
@@ -107,16 +104,16 @@ Namespace UserInterface
             dialog.Dispose()
         End Sub
 
-        Private Sub btnEdit_Click(sender As Object, e As EventArgs) Handles btnEdit.Click
+        Private Sub btnEdit_Click(sender As Object, e As EventArgs) 
             If botTree.SelectedNode Is Nothing Then Exit Sub
-            Dim bot = DirectCast(botTree.SelectedNode.Tag, Generic)
-            Dim dialog As New SettingsEditor(bot.BotInformation)
+            Dim bot = DirectCast(botTree.SelectedNode.Tag, Manager.Bot)
+            Dim dialog As New Settings.Bot(bot.BotInformation)
 
             If dialog.ShowDialog() = DialogResult.OK Then
-                Dim title As String = bot.BotInformation.GetSettingValue("PtcUsername")
-                If title.ToLower().Contains("username") Then title = bot.BotInformation.GetSettingValue("GoogleEmail")
-                If title = "" Then title = bot.BotInformation.GetSettingValue("GoogleUsername")
-
+                Dim title As String = bot.BotInformation.BotSettings("PtcUsername")
+                If title.ToLower().Contains("username") Then title = bot.BotInformation.BotSettings("GoogleEmail")
+                If title = "" Then title = bot.BotInformation.BotSettings("GoogleUsername")
+                botTree.SelectedNode.Name = title
                 botTree.SelectedNode.Text = title
 
                 bot.Kill(False)
@@ -124,49 +121,49 @@ Namespace UserInterface
             End If
         End Sub
 
-        Private Sub btnRemove_Click(sender As Object, e As EventArgs) Handles btnRemove.Click
+        Private Sub btnRemove_Click(sender As Object, e As EventArgs) 
             If botTree.SelectedNode Is Nothing Then Exit Sub
-            Dim bot = DirectCast(botTree.SelectedNode.Tag, Generic)
+            Dim bot = DirectCast(botTree.SelectedNode.Tag, Manager.Bot)
             _bots.Remove(bot)
             bot.Dispose()
             My.Settings.ListOfPropertiesBots.Items.Remove(bot.BotInformation)
             botTree.Nodes.Remove(botTree.SelectedNode)
         End Sub
 
-        Private Sub btnRestart_Click(sender As Object, e As EventArgs) Handles btnRestart.Click
+        Private Sub btnRestart_Click(sender As Object, e As EventArgs) 
             If botTree.SelectedNode Is Nothing Then Exit Sub
-            Dim bot = DirectCast(botTree.SelectedNode.Tag, Generic)
+            Dim bot = DirectCast(botTree.SelectedNode.Tag, Manager.Bot)
             If bot.IsRunning Then bot.Kill(False)
             bot.Start()
         End Sub
 
-        Private Sub btnStop_Click(sender As Object, e As EventArgs) Handles btnStop.Click
+        Private Sub btnStop_Click(sender As Object, e As EventArgs) 
             If botTree.SelectedNode Is Nothing Then Exit Sub
-            Dim bot = DirectCast(botTree.SelectedNode.Tag, Generic)
+            Dim bot = DirectCast(botTree.SelectedNode.Tag, Manager.Bot)
 
             If bot.IsRunning Then
                 bot.Kill(False)
             End If
         End Sub
 
-        Private Sub btnRestartAll_Click(sender As Object, e As EventArgs) Handles btnRestartAll.Click
+        Private Sub btnRestartAll_Click(sender As Object, e As EventArgs) 
             KillAllBots()
             StartAllBots()
         End Sub
 
-        Private Sub btnStopAll_Click(sender As Object, e As EventArgs) Handles btnStopAll.Click
+        Private Sub btnStopAll_Click(sender As Object, e As EventArgs) 
              KillAllBots()
         End Sub
 
         Private Sub repLabel_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) _
-            Handles repLabel.LinkClicked
+            
             repLabel.LinkVisited = True
             Process.Start(
                 "http://www.ownedcore.com/forums/pokemon-go/pokemon-go-hacks-cheats/568064-bot-manager-spegeli-necro-haxton-all-one-multi-account-1000-a.html")
         End Sub
 
         Private Sub paypalLabel_LinkClicked_1(sender As Object, e As LinkLabelLinkClickedEventArgs) _
-            Handles paypalLabel.LinkClicked
+            
             repLabel.LinkVisited = True
 
             Process.Start(
@@ -179,23 +176,23 @@ Namespace UserInterface
             End If
         End Sub
 
-        Private Sub botTree_AfterSelect(sender As Object, e As TreeViewEventArgs) Handles botTree.AfterSelect
+        Private Sub botTree_AfterSelect(sender As Object, e As TreeViewEventArgs) 
             If Not e.Node.IsSelected Then Exit Sub
-            Dim bot = DirectCast(e.Node.Tag, Generic)
+            Dim bot = DirectCast(e.Node.Tag, Manager.Bot)
             Api.ShowWindow(bot.Handle, 5)
             Api.SetWindowPos(bot.Handle, 1, 0, 0, botPanel.Width, botPanel.Height, 0)
             bot.IsSelected = True
         End Sub
 
         Private Sub botTree_BeforeSelect(sender As Object, e As TreeViewCancelEventArgs) _
-            Handles botTree.BeforeSelect
+            
 
             If botTree.SelectedNode Is Nothing Then
-                Dim bot = DirectCast(e.Node.Tag, Generic)
+                Dim bot = DirectCast(e.Node.Tag, Manager.Bot)
                 Api.ShowWindow(bot.Handle, 5)
                 Api.SetWindowPos(bot.Handle, 1, 0, 0, botPanel.Width, botPanel.Height, 0)
             Else
-                Dim bot = DirectCast(botTree.SelectedNode.Tag, Generic)
+                Dim bot = DirectCast(botTree.SelectedNode.Tag, Manager.Bot)
                 Api.ShowWindow(bot.Handle, 0)
                 bot.IsSelected = False
             End If
@@ -211,20 +208,20 @@ Namespace UserInterface
         Private Function StatusUpdate() As String
             Dim total As Double = 0
             Dim caption As New StringBuilder(256)
-            For Each bot As Generic In _bots
+            For Each bot As Manager.Bot In _bots
                 If bot.IsRunning Then
                     caption.Clear()
                     Api.GetWindowText(bot.Handle, caption, caption.Capacity)
                     Dim str As String() = caption.ToString.Split("|")
                     If str.Length >= 2 Then
                         Dim parts
-                        If (bot.BotInformation.BotClass = "BotManager.Manager.HaxtonBot") Then
+                        If (bot.BotInformation.SupportedBot.RootDirectory = "HaxtonBot") Then
                             parts = str(1).Split("-")(2)
-                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.SpegeliBot") Then
+                        ElseIf (bot.BotInformation.SupportedBot.RootDirectory = "SpegeliBot") Then
                             parts = str(0).Split("(")(0).Split("-")(2)
-                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.NecroBot") Then
+                        ElseIf (bot.BotInformation.SupportedBot.RootDirectory = "NecroBot") Then
                             parts = str(0).Split("-")(2).Split("(")(0)
-                        ElseIf (bot.BotInformation.BotClass = "BotManager.Manager.PokeMobBot") Then
+                        ElseIf (bot.BotInformation.SupportedBot.RootDirectory = "PokeMobBot") Then
                             parts = str(0).Split("-")(2).Split("(")(0)
                         End If
                         bot.Level = parts
@@ -246,7 +243,7 @@ Namespace UserInterface
         End Sub
         Private Sub BackgroundWorker_Complete(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorker.RunWorkerCompleted
             For Each treeNode As TreeNode In botTree.Nodes
-                Dim bot = DirectCast(treeNode.Tag, Generic)
+                Dim bot = DirectCast(treeNode.Tag, Manager.Bot)
                 treeNode.Text = treeNode.Name
                 If showLvl.Checked Then
                     treeNode.Text &= " - " & bot.Level
@@ -259,17 +256,17 @@ Namespace UserInterface
                 End If
             Next
 
-            statusLabel.Text = e.Result.ToString()
+            'statusLabel.Text = e.Result.ToString()
         End Sub
         Private Sub ResizeCmd()
             If botTree.SelectedNode Is Nothing Then Exit Sub
-            Dim bot = DirectCast(botTree.SelectedNode.Tag, Generic)
+            Dim bot = DirectCast(botTree.SelectedNode.Tag, Manager.Bot)
             Api.SetWindowPos(bot.Handle, 1, 0, 0, botPanel.Width, botPanel.Height, 0)
         End Sub
 
         Private Sub StartAllBots()
            Dim t As Task = Task.Run(Sub()
-                    For Each bot As Generic In _bots
+                    For Each bot As Manager.Bot In _bots
                         If Not bot.IsRunning Then bot.Start()
                     Next
            End Sub)
@@ -277,7 +274,7 @@ Namespace UserInterface
 
         Private Sub KillAllBots(Optional delete As Boolean = False)
             Dim t As Task = Task.Run(Sub()
-                For Each bot As Generic In _bots
+                For Each bot As Manager.Bot In _bots
                     If bot.IsRunning Then bot.Kill(delete)
                 Next
                                         End Sub)
@@ -286,29 +283,27 @@ Namespace UserInterface
         End Sub
 
         Private Function ContainsProcess(commandLine As String)
-            Return _bots.Cast (Of Generic)().Any(Function(bot) commandLine.Contains(bot.ProcessId.ToString()))
+            Return _bots.Cast (Of Manager.Bot)().Any(Function(bot) commandLine.Contains(bot.ProcessId.ToString()))
         End Function
-        Private Sub btnStartAll_Click(sender As Object, e As EventArgs) Handles btnStartAll.Click
+        Private Sub btnStartAll_Click(sender As Object, e As EventArgs) 
             StartAllBots()
         End Sub
 
-        Private Sub btnRemoveAll_Click(sender As Object, e As EventArgs) Handles btnRemoveAll.Click
+        Private Sub btnRemoveAll_Click(sender As Object, e As EventArgs) 
             botTree.Nodes.Clear()
             KillAllBots(True)
             _bots.Clear()
             My.Settings.ListOfPropertiesBots = New OfPropertiesBots()
             My.Settings.Save()
         End Sub
-        Private Sub StripForceUpdate_click(sender As Object, e As EventArgs) Handles stripForceUpdate.Click
-            Dim dialog As New UserInterface.Downloading()
-            dialog.ForceUpdate = True
+        Private Sub StripForceUpdate_click(sender As Object, e As EventArgs) 
+            Dim dialog As New Download.Main()
             dialog.ShowDialog()
             dialog.Dispose()
         End Sub
 
-        Private Sub stripAutoUpdate_Click(sender As Object, e As EventArgs) Handles stripAutoUpdate.Click
-            My.Settings.AutoUpdate = stripAutoUpdate.Checked
-            my.Settings.Save()
+        Private Sub TabPage1_Click(sender As Object, e As EventArgs) Handles TabPage1.Click
+
         End Sub
     End Class
 End Namespace

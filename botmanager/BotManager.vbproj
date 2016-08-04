@@ -85,6 +85,18 @@
     <ManifestKeyFile>BotManager_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MetroFramework, Version=1.4.0.0, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
+      <HintPath>..\packages\MetroModernUI.1.4.0.0\lib\net\MetroFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MetroFramework.Design, Version=1.4.0.0, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
+      <HintPath>..\packages\MetroModernUI.1.4.0.0\lib\net\MetroFramework.Design.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MetroFramework.Fonts, Version=1.4.0.0, Culture=neutral, PublicKeyToken=5f91a84759bf584a, processorArchitecture=MSIL">
+      <HintPath>..\packages\MetroModernUI.1.4.0.0\lib\net\MetroFramework.Fonts.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -117,31 +129,34 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BotSettings.vb" />
+    <Compile Include="Helpers\BotConfigReader.vb" />
+    <Compile Include="Helpers\BotConfigWriter.vb" />
     <Compile Include="Interfaces\Settings.vb" />
-    <Compile Include="List\OfSupportedBots.vb" />
-    <Compile Include="Manager\BotFactory.vb" />
+    <Compile Include="UserInterface\Download\SupportedBots.vb" />
     <Compile Include="List\OfPropertiesBots.vb" />
     <Compile Include="Helpers\Http.vb" />
     <Compile Include="Helpers\IO.vb" />
-    <Compile Include="Manager\PokeMobBot.vb" />
     <Compile Include="Properties\BotInformation.vb" />
-    <Compile Include="Properties\SupportedBotInformation.vb" />
-    <Compile Include="Manager\HaxtonBot.vb" />
-    <Compile Include="Manager\NecroBot.vb" />
-    <Compile Include="Manager\SpegeliBot.vb" />
-    <Compile Include="UserInterface\Downloading.Designer.vb">
-      <DependentUpon>Downloading.vb</DependentUpon>
+    <Compile Include="UserInterface\Download\Add.Designer.vb">
+      <DependentUpon>Add.vb</DependentUpon>
     </Compile>
-    <Compile Include="UserInterface\Downloading.vb">
+    <Compile Include="UserInterface\Download\Add.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UserInterface\SettingsEditor.Designer.vb">
-      <DependentUpon>SettingsEditor.vb</DependentUpon>
+    <Compile Include="UserInterface\Download\Main.Designer.vb">
+      <DependentUpon>Main.vb</DependentUpon>
     </Compile>
-    <Compile Include="UserInterface\SettingsEditor.vb">
+    <Compile Include="UserInterface\Download\Main.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Manager\Generic.vb" />
+    <Compile Include="UserInterface\Settings\Bot.Designer.vb">
+      <DependentUpon>Bot.vb</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\Settings\Bot.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Manager\Bot.vb" />
     <Compile Include="UserInterface\Main.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -168,8 +183,11 @@
     <Compile Include="Windows\CmdLine.vb" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UserInterface\Downloading.resx">
-      <DependentUpon>Downloading.vb</DependentUpon>
+    <EmbeddedResource Include="UserInterface\Download\Add.resx">
+      <DependentUpon>Add.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\Download\Main.resx">
+      <DependentUpon>Main.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\Main.resx">
       <DependentUpon>Main.vb</DependentUpon>
@@ -180,8 +198,8 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="UserInterface\SettingsEditor.resx">
-      <DependentUpon>SettingsEditor.vb</DependentUpon>
+    <EmbeddedResource Include="UserInterface\Settings\Bot.resx">
+      <DependentUpon>Bot.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

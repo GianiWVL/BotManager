@@ -1,9 +1,10 @@
 ﻿Imports BotManager.Interfaces
 Imports BotManager.List
 Imports BotManager.Properties
+Imports BotManager.UserInterface.Download
 
-Namespace UserInterface
-    Public Class SettingsEditor
+Namespace UserInterface.Settings
+    Public Class Bot
         Private ReadOnly _botProperties As BotInformation
         Public BatchAddProperties As List(Of BotInformation)
 
@@ -17,30 +18,15 @@ Namespace UserInterface
         End Sub
 
         Private Sub SettingsEditor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-            If _botProperties.SettingValues.Count > 0 Then
-                AddToGridView(_botProperties)
-            Else
-                Select Case _botProperties.BotClass
-                    Case "BotManager.Manager.HaxtonBot"
-                        AddToGridView(OfSupportedBots.GetInstance()("HaxtonBot"))
-                    Case "BotManager.Manager.SpegeliBot"
-                        AddToGridView(OfSupportedBots.GetInstance()("SpegeliBot"))
-                    Case "BotManager.Manager.NecroBot"
-                        AddToGridView(OfSupportedBots.GetInstance()("NecroBot"))
-                    Case "BotManager.Manager.PokeMobBot"
-                        AddToGridView(OfSupportedBots.GetInstance()("PokeMobBot"))
-                End Select
-            End If
+               AddToGridView(_botProperties.BotSettings)
         End Sub
 
-        Private Sub AddToGridView(supportedBotInformation As ISettings)
+        Private Sub AddToGridView(botSettings As BotSettings)
             Dim newTable As New DataTable
             newTable.Columns.Add("Name")
             newTable.Columns.Add("Value")
-            For i = 0 To supportedBotInformation.SettingKeys.Count - 1
-                newTable.Rows.Add(supportedBotInformation.SettingKeys(i), supportedBotInformation.SettingValues(i))
-                _botProperties.AddKeyValue(supportedBotInformation.SettingKeys(i),
-                                           supportedBotInformation.SettingValues(i))
+            For Each setting As String In botSettings.Keys
+                newTable.Rows.Add(setting, botSettings(setting))
             Next
 
             txtRestartTimer.Text = _botProperties.RestartTimer
@@ -52,7 +38,7 @@ Namespace UserInterface
             BatchAddProperties = New List(Of BotInformation)
 
             For row = 0 To DataGridView1.Rows.Count - 2
-                _botProperties.SettingValues.Item(row) = DataGridView1.Rows(row).Cells(1).Value.ToString()
+                _botProperties.BotSettings(DataGridView1.Rows(row).Cells(0).Value.ToString()) = DataGridView1.Rows(row).Cells(1).Value.ToString()
             Next
 
             If Not Integer.TryParse(txtRestartTimer.Text, _botProperties.RestartTimer) Then
@@ -73,13 +59,11 @@ Namespace UserInterface
                     For j As Integer = 0 To content.Length - 1
                         currentLine = content(j)
                         currentLineIndex = j
-                        newBotProperty = New BotInformation()
+                        newBotProperty = New BotInformation(_botProperties.SupportedBot)
                         newBotProperty.Hide = _botProperties.Hide
                         newBotProperty.RestartTimer = _botProperties.RestartTimer
-                        newBotProperty.BotClass = _botProperties.BotClass
-                        For i = 0 To _botProperties.SettingKeys.Count - 1
-                            newBotProperty.AddKeyValue(_botProperties.SettingKeys(i), _botProperties.SettingValues(i))
-                        Next
+
+                        newBotProperty.BotSettings = _botProperties.BotSettings.Clone()
 
                         Dim settings As String() = currentLine.Trim(vbLf).Split(",")
                         If settings.Length = 0 Then Continue For
@@ -89,8 +73,11 @@ Namespace UserInterface
                             If field = "" OrElse value = "" Then Continue For
 
                             currentField = field
-                            Dim indexOf As Integer = newBotProperty.SettingKeys.IndexOf(field)
-                            newBotProperty.SettingValues(indexOf) = value
+                            If newBotProperty.BotSettings.ContainsKey(field) Then
+                                newBotProperty.BotSettings(field) = value
+                            Else 
+                                Throw New Exception("YOU BIG DUMBY, THAT FIELD DOESN'T EXISTS")
+                            End If
                         Next
 
                         BatchAddProperties.Add(newBotProperty)

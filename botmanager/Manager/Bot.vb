@@ -4,7 +4,7 @@ Imports BotManager.Properties
 Imports BotManager.Windows
 
 Namespace Manager
-    Public MustInherit Class Generic
+    Public Class Bot
         Implements IDisposable
         Public IsSelected As Boolean = False
         Public Shared PanelHandle As Integer
@@ -47,7 +47,6 @@ Namespace Manager
         Private _p As Process
         Private ReadOnly _timer As New Timer(500)
         Private _startTime As Date = Nothing
-        Public MustOverride Sub WriteSettings()
 
 
         Public Sub New(ByRef botInformation As BotInformation)
@@ -59,7 +58,7 @@ Namespace Manager
         Protected Function Initialize() As Boolean
             If File.Exists(ExecutablePath) Then
                 BotInformation.TempExecutablePath = IO.CopyFolder(
-                    Path.GetDirectoryName(ExecutablePath)) & "\" &
+                    Path.GetDirectoryName(ExecutablePath), BotInformation.SupportedBot.InstanceDirectory) & "\" &
                                                     Path.GetFileName(ExecutablePath)
                 Return True
             Else
@@ -68,7 +67,18 @@ Namespace Manager
                 Return False
             End If
         End Function
-
+        Public Sub WriteSettings()
+            Select Case BotInformation.SupportedBot.ReaderType
+                Case ReaderType.JsonSettings
+                    BotConfigWriter.JsonSettings(BotInformation)
+                Case ReaderType.AppSetting
+                    BotConfigWriter.AppSettings(BotInformation)
+                Case ReaderType.UserSetting
+                    BotConfigWriter.UserSettings(BotInformation)
+                Case ReaderType.XmlSettings
+                    BotConfigWriter.XmlSettings(BotInformation)
+            End Select
+        End Sub
         Public Sub Start()
             If Not _hasRan Then 
                 Initialize()

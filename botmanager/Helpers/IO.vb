@@ -6,9 +6,9 @@ Namespace Helpers
             AppData As String = My.Computer.FileSystem.SpecialDirectories.CurrentUserApplicationData & "\" &
                                 "BotManager\"
 
-        Public Shared Function CopyFolder(sourcePath As String) As String
+        Public Shared Function CopyFolder(sourcePath As String, destinationPath As String) As String
             Dim tempFolderName As String = Path.GetRandomFileName()
-            Dim tempFolderPath As String = AppData & tempFolderName
+            Dim tempFolderPath As String = destinationPath & tempFolderName
             Directory.CreateDirectory(tempFolderPath)
 
             'Now Create all of the directories
